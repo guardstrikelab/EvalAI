@@ -27,9 +27,14 @@ DATABASES = {
 }
 
 # E-Mail Settings
-EMAIL_HOST = "localhost"
-EMAIL_PORT = 1025
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = ""
+EMAIL_HOST = ""
+EMAIL_PORT = 587
+EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_USER = ""
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 

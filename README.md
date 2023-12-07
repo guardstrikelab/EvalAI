@@ -47,7 +47,17 @@ The steps are:
     git clone https://github.com/Cloud-CV/EvalAI.git evalai && cd evalai
     ```
 
-3. Build and run the Docker containers. This might take a while.
+3. Set sending email information in `settings/dev.py`.
+
+    ```shell
+    DEFAULT_FROM_EMAIL = "xxx@xxx.xxx"
+    EMAIL_HOST = "smtp.xxx.com"
+    EMAIL_PORT = 587
+    EMAIL_HOST_PASSWORD = "xxx"
+    EMAIL_HOST_USER = "xxx@xxx.xxx"
+    ```
+
+4. Build and run the Docker containers. This might take a while.
 
     ```
     docker-compose up --build

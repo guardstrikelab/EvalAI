@@ -27,42 +27,60 @@ services:
     volumes:
       - .:/code
 
-  worker:
-    env_file:
-      - docker/dev/docker.env
-    build:
-      context: ./
-      dockerfile: docker/dev/worker/Dockerfile
-    depends_on:
-      - django
-    volumes:
-      - .:/code
+#  worker:
+#    env_file:
+#      - docker/dev/docker.env
+#    build:
+#      context: ./
+#      dockerfile: docker/dev/worker/Dockerfile
+#    depends_on:
+#      - django
+#    volumes:
+#      - .:/code
+#
+#  worker_py3_8:
+#    env_file:
+#      - docker/dev/docker.env
+#    build:
+#      context: ./
+#      dockerfile: docker/dev/worker_py3.8/Dockerfile
+#    depends_on:
+#      - django
+#    volumes:
+#      - .:/code
 
-  worker_py3_8:
-    env_file:
-      - docker/dev/docker.env
-    build:
-      context: ./
-      dockerfile: docker/dev/worker_py3.8/Dockerfile
-    depends_on:
-      - django
-    volumes:
-      - .:/code
+#  nodejs:
+#    hostname: nodejs
+#    build:
+#      context: ./
+#      dockerfile: docker/dev/nodejs/Dockerfile
+#      args:
+#        NODE_ENV: development
+#    environment:
+#      NODE_ENV: development
+#    ports:
+#      - "8888:8888"
+#      - "35729:35729"
+#    volumes:
+#      - .:/code
+#      - /code/node_modules
+#      - /code/bower_components
 
-  nodejs:
-    hostname: nodejs
+  frontend:
+    restart: unless-stopped
     build:
       context: ./
-      dockerfile: docker/dev/nodejs/Dockerfile
+      dockerfile: docker/dev/frontend/Dockerfile
+      args:
+        NODE_ENV: development
     environment:
       NODE_ENV: development
     ports:
       - "8888:8888"
-      - "35729:35729"
+    depends_on:
+      - django
     volumes:
-      - .:/code
-      - /code/node_modules
-      - /code/bower_components
+      - ./frontend:/code
 
   statsd-exporter:
     hostname: statsd

@@ -34,7 +34,12 @@ def paginated_queryset(
     Return a paginated result for a queryset
     """
     paginator = pagination_class
-    paginator.page_size = settings.REST_FRAMEWORK["PAGE_SIZE"]
+    page_size = request.GET.get('page_size')
+    if page_size:
+        page_size = int(page_size)
+    else:
+        page_size = settings.REST_FRAMEWORK["PAGE_SIZE"]
+    paginator.page_size = page_size
     result_page = paginator.paginate_queryset(queryset, request)
     return (paginator, result_page)
 
@@ -46,7 +51,12 @@ def team_paginated_queryset(
     Return a paginated result for a queryset
     """
     paginator = pagination_class
-    paginator.page_size = settings.REST_FRAMEWORK["TEAM_PAGE_SIZE"]
+    page_size = request.GET.get('page_size')
+    if page_size:
+        page_size = int(page_size)
+    else:
+        page_size = settings.REST_FRAMEWORK["TEAM_PAGE_SIZE"]
+    paginator.page_size = page_size
     result_page = paginator.paginate_queryset(queryset, request)
     return (paginator, result_page)
 
@@ -252,7 +262,7 @@ def send_slack_notification(webhook=settings.SLACK_WEB_HOOK_URL, message=""):
     try:
         data = {
             "attachments": [{"color": "ffaf4b", "fields": message["fields"]}],
-            "icon_url": "https://eval.ai/dist/images/evalai-logo-single.png",
+            "icon_url": "https://arena.synkrotron.ai/images/evalai-logo-single.png",
             "text": message["text"],
             "username": "EvalAI",
         }

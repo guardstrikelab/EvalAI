@@ -56,13 +56,13 @@ COMMON_SETTINGS_DICT = {
     ),
     "WORKER_IMAGE": os.environ.get(
         "WORKER_IMAGE",
-        "{}.dkr.ecr.us-east-1.amazonaws.com/evalai-{}-worker:latest".format(
+        "{}.dkr.ecr.cn-northwest-1.amazonaws.com.cn/arena/evalai-{}-worker:latest".format(
             aws_keys["AWS_ACCOUNT_ID"], ENV
         ),
     ),
     "CODE_UPLOAD_WORKER_IMAGE": os.environ.get(
         "CODE_UPLOAD_WORKER_IMAGE",
-        "{}.dkr.ecr.us-east-1.amazonaws.com/evalai-{}-worker:latest".format(
+        "{}.dkr.ecr.cn-northwest-1.amazonaws.com.cn/arena/evalai-{}-worker:latest".format(
             aws_keys["AWS_ACCOUNT_ID"], ENV
         ),
     ),

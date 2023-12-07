@@ -6,7 +6,7 @@ services:
       - "11211:11211"
 
   django:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-backend:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-backend:${COMMIT_ID}
     env_file:
       - docker/prod/docker_production.env
     build:
@@ -14,6 +14,8 @@ services:
       dockerfile: docker/prod/django/Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - /etc/localtime:/etc/localtime
     logging:
       driver: awslogs
       options:
@@ -22,7 +24,7 @@ services:
         awslogs-create-group: "true"
 
   celery:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-celery:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-celery:${COMMIT_ID}
     env_file:
       - docker/prod/docker_production.env
     build:
@@ -30,6 +32,8 @@ services:
       dockerfile: docker/prod/celery/Dockerfile
     depends_on:
       - django
+    volumes:
+      - /etc/localtime:/etc/localtime
     logging:
       driver: awslogs
       options:
@@ -38,23 +42,27 @@ services:
         awslogs-create-group: "true"
 
   worker:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-worker:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-worker:${COMMIT_ID}
     build:
       context: ./
       dockerfile: docker/prod/worker/Dockerfile
     env_file:
       - docker/prod/docker_production.env
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   worker_py3.8:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-worker-py3.8:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-worker-py3.8:${COMMIT_ID}
     build:
       context: ./
       dockerfile: docker/prod/worker_py3.8/Dockerfile
     env_file:
       - docker/prod/docker_production.env
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   nodejs:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-frontend:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-frontend:${COMMIT_ID}
     build:
       context: ./
       dockerfile: docker/prod/nodejs/Dockerfile
@@ -66,6 +74,7 @@ services:
     volumes:
       - /code/node_modules
       - /code/bower_components
+      - /etc/localtime:/etc/localtime
     logging:
       driver: awslogs
       options:
@@ -74,21 +83,25 @@ services:
         awslogs-create-group: "true"
 
   remote-worker:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-remote-worker:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-remote-worker:${COMMIT_ID}
     build:
       context: ./
       dockerfile: docker/prod/worker/Dockerfile
     command: ["python", "-m", "scripts.workers.remote_submission_worker"]
     env_file:
       - docker/prod/docker_remote_worker.env
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   code-upload-worker:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-code-upload-worker:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-code-upload-worker:${COMMIT_ID}
     env_file:
       - docker/prod/docker_code_upload_worker.env
     build:
       context: ./
       dockerfile: docker/prod/code-upload-worker/Dockerfile
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   prometheus:
     hostname: prometheus
@@ -137,7 +150,7 @@ services:
       - '9100:9100'
 
   nginx-ingress:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/evalai-production-nginx-ingress:${COMMIT_ID}
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-nginx-ingress:${COMMIT_ID}
     build:
       context: ./
       dockerfile: docker/prod/nginx-ingress/Dockerfile

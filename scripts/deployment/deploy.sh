@@ -4,12 +4,27 @@ set -e
 opt=${1}
 
 aws_login() {
-    aws configure set default.region us-east-1
+    aws configure set default.region cn-northwest-1
     eval $(aws ecr get-login --no-include-email)
 }
 
 if [ -z ${AWS_ACCOUNT_ID} ]; then
     echo "AWS_ACCOUNT_ID not set."
+    exit 0
+fi
+
+if [ -z ${AWS_ACCESS_KEY_ID} ]; then
+    echo "AWS_ACCESS_KEY_ID not set."
+    exit 0
+fi
+
+if [ -z ${AWS_SECRET_ACCESS_KEY} ]; then
+    echo "AWS_SECRET_ACCESS_KEY not set."
+    exit 0
+fi
+
+if [ -z ${AWS_DEFAULT_REGION} ]; then
+    echo "AWS_DEFAULT_REGION not set."
     exit 0
 fi
 
@@ -22,7 +37,7 @@ if [ -z ${TRAVIS_BRANCH} ]; then
 fi
 
 env=${TRAVIS_BRANCH}
-JUMPBOX=${JUMPBOX_INSTANCE}
+#JUMPBOX=${JUMPBOX_INSTANCE}
 
 if [[ ${env} == "production" ]]; then
     INSTANCE=${PRODUCTION_INSTANCE}
@@ -38,45 +53,66 @@ fi
 case $opt in
         auto_deploy)
             chmod 400 scripts/deployment/evalai.pem
+            eval `ssh-agent -s`
             ssh-add scripts/deployment/evalai.pem
-			ssh -A ubuntu@${JUMPBOX} -o StrictHostKeyChecking=no INSTANCE=${INSTANCE} AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH'
-				ssh ubuntu@${INSTANCE} -o StrictHostKeyChecking=no AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH2'
-					source venv/bin/activate
-					cd ~/Projects/EvalAI
-					export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
-					export COMMIT_ID=${COMMIT_ID}
-					export AWS_DEFAULT_REGION=us-east-1
-					eval $(aws ecr get-login --no-include-email)
-					aws s3 cp s3://cloudcv-secrets/evalai/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
-					docker-compose -f docker-compose-${env}.yml rm -s -v -f
-					docker-compose -f docker-compose-${env}.yml pull django nodejs celery node_exporter memcached
-					docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans django nodejs celery node_exporter memcached
-				ENDSSH2
+			ssh -A ubuntu@${INSTANCE} -o StrictHostKeyChecking=no AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}  AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}  COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH'
+        export COMMIT_ID=${COMMIT_ID}
+        export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+        export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+        export AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+        cd ~/Projects/EvalAI
+
+        if ! command -v curl &> /dev/null; then
+          sudo apt-get install curl
+        fi
+
+        if ! command -v unzip &> /dev/null; then
+          sudo apt-get install unzip
+        fi
+
+        if command -v aws &> /dev/null; then
+          echo "AWS CLI installed.";
+        else
+          echo "Installing AWS CLI";
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+        fi
+
+        aws s3 cp s3://arena/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
+        aws s3 cp s3://arena/${env}/docker-compose-${env}.yml ./docker-compose-${env}.yml
+        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn
+        docker-compose --version
+        docker-compose -f docker-compose-${env}.yml rm -s -v -f
+        docker-compose -f docker-compose-${env}.yml pull django nodejs celery node_exporter memcached
+        docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans django nodejs celery node_exporter memcached
 			ENDSSH
             ;;
         deploy-monitoring)
             chmod 400 scripts/deployment/evalai.pem
+            eval `ssh-agent -s`
             ssh-add scripts/deployment/evalai.pem
-			ssh -A ubuntu@${JUMPBOX} -o StrictHostKeyChecking=no MONITORING_INSTANCE=${MONITORING_INSTANCE} AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH'
-				ssh ubuntu@${MONITORING_INSTANCE} -o StrictHostKeyChecking=no AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH2'
-					source venv/bin/activate
-                    			cd ~/Projects/EvalAI
-					export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
-					export COMMIT_ID=${COMMIT_ID}
-					export AWS_DEFAULT_REGION=us-east-1
-					eval $(aws ecr get-login --no-include-email)
-					aws s3 cp s3://cloudcv-secrets/evalai/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
-					aws s3 cp s3://cloudcv-secrets/evalai/${env}/alert_manager.yml ./monitoring/prometheus/alert_manager.yml
-					docker-compose -f docker-compose-${env}.yml rm -s -v -f
-					docker-compose -f docker-compose-${env}.yml pull nginx-ingress prometheus grafana statsd-exporter alert-manager
-					docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans nginx-ingress prometheus grafana statsd-exporter alert-manager
-				ENDSSH2
+			ssh -A ubuntu@${MONITORING_INSTANCE} -o StrictHostKeyChecking=no AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID} COMMIT_ID=${COMMIT_ID} env=${env} 'bash -s' <<-'ENDSSH'
+        source venv/bin/activate
+        cd ~/Projects/EvalAI
+        export AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+        export COMMIT_ID=${COMMIT_ID}
+        export AWS_DEFAULT_REGION=cn-northwest-1
+        eval $(aws ecr get-login --no-include-email)
+        aws s3 cp s3://arena/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
+        aws s3 cp s3://arena/${env}/alert_manager.yml ./monitoring/prometheus/alert_manager.yml
+        aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn
+        docker-compose --version
+        docker-compose -f docker-compose-${env}.yml rm -s -v -f
+        docker-compose -f docker-compose-${env}.yml pull nginx-ingress prometheus grafana statsd-exporter alert-manager
+        docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans nginx-ingress prometheus grafana statsd-exporter alert-manager
 			ENDSSH
             ;;
         pull)
             aws_login;
             echo "Pulling environment variables file..."
-            aws s3 cp s3://cloudcv-secrets/evalai/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
+            aws s3 cp s3://arena/${env}/docker_${env}.env ./docker/prod/docker_${env}.env
             echo "Environment varibles file successfully downloaded."
             echo "Pulling docker images from ECR..."
             docker-compose -f docker-compose-${env}.yml pull
@@ -111,9 +147,9 @@ case $opt in
             fi
             echo "Pulling queue name for $env server challenge..."
             if [ ${env} == "staging" ]; then
-                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.eval.ai/api/challenges/get_broker_url/$challenge/)
+                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.arena.synkrotron.ai/api/challenges/get_broker_url/$challenge/)
             elif [ ${env} == "production" ]; then
-                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://eval.ai/api/challenges/get_broker_url/$challenge/)
+                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://arena.synkrotron.ai/api/challenges/get_broker_url/$challenge/)
             fi
             echo "Completed pulling Queue name"
             # preprocess the python list to bash array
@@ -132,9 +168,9 @@ case $opt in
             fi
             echo "Pulling queue name for $env server challenge..."
             if [ ${env} == "staging" ]; then
-                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.eval.ai/api/challenges/get_broker_url/$challenge/)
+                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.arena.synkrotron.ai/api/challenges/get_broker_url/$challenge/)
             elif [ ${env} == "production" ]; then
-                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://eval.ai/api/challenges/get_broker_url/$challenge/)
+                queue_name=$(curl -k -L -X GET -H "Authorization: Token $token" https://arena.synkrotron.ai/api/challenges/get_broker_url/$challenge/)
             fi
             echo "Completed pulling Queue name"
             # preprocess the python list to bash array
@@ -163,9 +199,9 @@ case $opt in
             token=${3}
             echo "Pulling queue names for $env server challenges..."
             if [ ${env} == "staging" ]; then
-                queue_names=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.eval.ai/api/challenges/get_broker_urls/)
+                queue_names=$(curl -k -L -X GET -H "Authorization: Token $token" https://staging.arena.synkrotron.ai/api/challenges/get_broker_urls/)
             elif [ ${env} == "production" ]; then
-                queue_names=$(curl -k -L -X GET -H "Authorization: Token $token" https://eval.ai/api/challenges/get_broker_urls/)
+                queue_names=$(curl -k -L -X GET -H "Authorization: Token $token" https://arena.synkrotron.ai/api/challenges/get_broker_urls/)
             fi
             echo "Completed pulling Queue list"
             # preprocess the python list to bash array

@@ -16,13 +16,14 @@ Including another URLconf
 
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
 from allauth.account.views import ConfirmEmailView
 from rest_framework_expiring_authtoken.views import obtain_expiring_auth_token
 from rest_framework import permissions
+from rest_framework.documentation import include_docs_urls
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
@@ -60,13 +61,14 @@ urlpatterns = [
     ),
     url(r"^api/auth/registration/", include("rest_auth.registration.urls")),
     url(
-        r"^auth/api/password/reset/confirm/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$",  # noqa
+        r"^auth/resetcode/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$",  # noqa
         TemplateView.as_view(template_name="password_reset_confirm.html"),
         name="password_reset_confirm",
     ),
     url(
         r"^api/auth/email-confirmed/$",
-        TemplateView.as_view(template_name="account/email_confirm.html"),
+        RedirectView.as_view(url="http://127.0.0.1:8888/auth/verifyEmail"), #Todo replace env
+        # TemplateView.as_view(template_name="account/email_confirm.html"),
         name="email_confirm_done",
     ),
     url(r"^api/accounts/", include("accounts.urls", namespace="accounts")),
@@ -82,6 +84,7 @@ urlpatterns = [
     ),
     url(r"^api/web/", include("web.urls", namespace="web")),
     url(r"^email_reporting/", include("django_ses.urls")),
+    url(r"^docs/", include_docs_urls(title='ARENA API docs', description='Arena REST framework quickstart')),
     url(
         r"^api/docs/docs(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),

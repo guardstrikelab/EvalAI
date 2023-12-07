@@ -5,7 +5,7 @@ import raven
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["eval.ai"]
+ALLOWED_HOSTS = ["arena.synkrotron.ai"]
 
 # Database
 # https://docs.djangoproject.com/en/1.10.2/ref/settings/#databases
@@ -13,9 +13,9 @@ ALLOWED_HOSTS = ["eval.ai"]
 CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ORIGIN_WHITELIST = (
-    "https://evalai.s3.amazonaws.com",
-    "https://eval.ai",
-    "http://beta.eval.ai:9999",
+    "https://arena.s3.cn-northwest-1.amazonaws.com.cn",
+    "https://arena.synkrotron.ai",
+    "http://beta.synkrotron.ai:9999",
 )
 
 DATABASES = {
@@ -38,13 +38,14 @@ MIDDLEWARE += ["middleware.metrics.DatadogMiddleware"]  # noqa
 INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
+AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_SES_REGION_NAME = os.environ.get("AWS_SES_REGION_NAME")
 AWS_SES_REGION_ENDPOINT = os.environ.get("AWS_SES_REGION_ENDPOINT")
 
 # Amazon S3 Configurations
-AWS_S3_CUSTOM_DOMAIN = "%s.s3.amazonaws.com" % AWS_STORAGE_BUCKET_NAME
+AWS_S3_CUSTOM_DOMAIN = "%s.s3.%s.amazonaws.com.cn" % (AWS_STORAGE_BUCKET_NAME, AWS_DEFAULT_REGION)
 
 # static files configuration on S3
 STATICFILES_LOCATION = "static"
@@ -53,8 +54,9 @@ STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, STATICFILES_LOCATION)
 
 # Media files configuration on S3
 MEDIAFILES_LOCATION = "media"
-MEDIA_URL = "http://%s.s3.amazonaws.com/%s/" % (
+MEDIA_URL = "http://%s.s3.%s.amazonaws.com.cn/%s/" % (
     AWS_STORAGE_BUCKET_NAME,
+    AWS_DEFAULT_REGION,
     MEDIAFILES_LOCATION,
 )
 DEFAULT_FILE_STORAGE = "settings.custom_storages.MediaStorage"

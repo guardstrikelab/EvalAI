@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 ADD requirements/* /code/
 
-RUN pip install -r code_upload_worker.txt
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r code_upload_worker.txt
 
 ADD . /code
 
