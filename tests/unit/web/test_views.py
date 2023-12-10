@@ -256,7 +256,7 @@ class TestNotifyUsersAboutChallenge(TestCase):
         )
         self.email_data["challenge_image"] = SimpleUploadedFile(
             name="test_background_image.jpg",
-            content=open("frontend/src/images/rocket.png", "rb").read(),
+            content=open("frontend/src/assets/images/login_bg.png", "rb").read(),
             content_type="image/jpg",
         )
         request = self.client.post(self.url, self.email_data)
