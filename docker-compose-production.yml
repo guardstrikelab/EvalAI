@@ -61,27 +61,6 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime
 
-  nodejs:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-frontend:${COMMIT_ID}
-    build:
-      context: ./
-      dockerfile: docker/prod/nodejs/Dockerfile
-      args:
-        NODE_ENV: production
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /code/node_modules
-      - /code/bower_components
-      - /etc/localtime:/etc/localtime
-    logging:
-      driver: awslogs
-      options:
-        awslogs-region: ${AWS_DEFAULT_REGION}
-        awslogs-group: nodejs_production
-        awslogs-create-group: "true"
-
   remote-worker:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-remote-worker:${COMMIT_ID}
     build:
@@ -148,22 +127,6 @@ services:
     image: prom/node-exporter
     ports:
       - '9100:9100'
-
-  nginx-ingress:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-nginx-ingress:${COMMIT_ID}
-    build:
-      context: ./
-      dockerfile: docker/prod/nginx-ingress/Dockerfile
-      args:
-        MONITORING_ENV: production
-    depends_on:
-      - prometheus
-      - grafana
-      - statsd-exporter
-      - alert-manager
-    ports:
-      - '80:80'
-      - '443:443'
 
   alert-manager:
     hostname: alert_manager

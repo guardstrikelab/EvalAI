@@ -85,8 +85,8 @@ case $opt in
         aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn
         docker-compose --version
         docker-compose -f docker-compose-${env}.yml rm -s -v -f
-        docker-compose -f docker-compose-${env}.yml pull django nodejs celery node_exporter memcached
-        docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans django nodejs celery node_exporter memcached
+        docker-compose -f docker-compose-${env}.yml pull django celery node_exporter memcached
+        docker-compose -f docker-compose-${env}.yml up -d --force-recreate --remove-orphans django celery node_exporter memcached
 			ENDSSH
             ;;
         deploy-monitoring)

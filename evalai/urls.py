@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-
+import os
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
@@ -31,6 +31,8 @@ from web import views
 
 handler404 = "web.views.page_not_found"
 handler500 = "web.views.internal_server_error"
+
+redirectUrl = os.environ.get("HOSTNAME")
 
 swagger_api_info = openapi.Info(
     title="EvalAI API",
@@ -67,7 +69,7 @@ urlpatterns = [
     ),
     url(
         r"^api/auth/email-confirmed/$",
-        RedirectView.as_view(url="http://127.0.0.1:8888/auth/verifyEmail"), #Todo replace env
+        RedirectView.as_view(url="http://" + redirectUrl + "/auth/verifyEmail"),
         # TemplateView.as_view(template_name="account/email_confirm.html"),
         name="email_confirm_done",
     ),
