@@ -130,7 +130,7 @@ class GetTeamTest(APITestCase):
             description="An awesome description for Test User",
             headshot=SimpleUploadedFile(
                 name="test_headshot.jpg",
-                content=open("frontend/src/images/rocket.png", "rb").read(),
+                content=open("frontend/src/assets/images/banner.png", "rb").read(),
                 content_type="image/png",
             ),
             github_url="www.github.com/testuser",
@@ -138,7 +138,7 @@ class GetTeamTest(APITestCase):
             personal_website="www.testuser.com",
             background_image=SimpleUploadedFile(
                 name="test_background_image.jpg",
-                content=open("frontend/src/images/rocket.png", "rb").read(),
+                content=open("frontend/src/assets/images/login_bg.png", "rb").read(),
                 content_type="image/jpg",
             ),
             team_type=Team.CORE_TEAM,

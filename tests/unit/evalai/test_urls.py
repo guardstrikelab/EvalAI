@@ -39,7 +39,7 @@ class TestEvalAiUrls(BaseAPITestClass):
         )
         self.assertEqual(
             url,
-            "/auth/api/password/reset/confirm/"
+            "/auth/resetcode/"
             + urlsafe_base64_encode(force_bytes(self.user.pk))
             + "/"
             + str(default_token_generator.make_token(self.user)),
