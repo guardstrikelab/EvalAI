@@ -1,7 +1,7 @@
 from .common import *  # noqa: ignore=F405
 
 import os
-import raven
+# import raven
 
 DEBUG = False
 
@@ -35,7 +35,7 @@ DATADOG_API_KEY = os.environ.get("DATADOG_API_KEY")
 
 MIDDLEWARE += ["middleware.metrics.DatadogMiddleware"]  # noqa
 
-INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
+# INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
