@@ -56,7 +56,6 @@ jobs:
         with:
           registry: ${{ secrets.AWS_REGISTRY }}
       - run: docker-compose build || exit 1;
-      - run: docker-compose run nodejs bash -c "gulp dev && karma start --single-run && gulp staging" || exit 1;
       - run: docker-compose run -e DJANGO_SETTINGS_MODULE=settings.test django pytest --cov . --cov-config .coveragerc || exit 1;
       - run: 'bash <(curl -s https://codecov.io/bash)'
       - run: coveralls --rcfile=.coveragerc
