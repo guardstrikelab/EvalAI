@@ -30,7 +30,6 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "random_secret_key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 TEST = False
 
 ALLOWED_HOSTS = ["*"]
@@ -91,7 +90,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "django.contrib.sites.middleware.CurrentSiteMiddleware",  # TODO remove it?
+    "django.contrib.sites.middleware.CurrentSiteMiddleware",
 ]
 
 ROOT_URLCONF = "evalai.urls"

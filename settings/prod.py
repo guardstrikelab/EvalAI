@@ -3,19 +3,19 @@ from .common import *  # noqa: ignore=F405
 import os
 # import raven
 
-DEBUG = False
-
-ALLOWED_HOSTS = ["arena.synkrotron.ai"]
+DEBUG = True
+TEST = True
+ALLOWED_HOSTS = ["*"]
 
 # Database
 # https://docs.djangoproject.com/en/1.10.2/ref/settings/#databases
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
     "https://arena.s3.cn-northwest-1.amazonaws.com.cn",
     "https://arena.synkrotron.ai",
-    "http://beta.synkrotron.ai:9999",
+    "http://beta.synkrotron.ai",
 )
 
 DATABASES = {
@@ -36,6 +36,28 @@ DATADOG_API_KEY = os.environ.get("DATADOG_API_KEY")
 MIDDLEWARE += ["middleware.metrics.DatadogMiddleware"]  # noqa
 
 # INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
+INSTALLED_APPS += [  # noqa: ignore=F405
+    "django_spaghetti",
+    "autofixture",
+    "debug_toolbar",
+    "django_extensions",
+    "silk",
+]
+
+SPAGHETTI_SAUCE = {
+    "apps": [
+        "auth",
+        "accounts",
+        "analytics",
+        "base",
+        "challenges",
+        "hosts",
+        "jobs",
+        "participants",
+        "web",
+    ],
+    "show_fields": True,
+}
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
@@ -61,6 +83,11 @@ MEDIA_URL = "http://%s.s3.%s.amazonaws.com.cn/%s/" % (
 )
 DEFAULT_FILE_STORAGE = "settings.custom_storages.MediaStorage"
 
+MIDDLEWARE += [  # noqa: ignore=F405
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "silk.middleware.SilkyMiddleware",
+]
+
 # Setup Email Backend related settings
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -73,8 +100,12 @@ EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
 # Hide API Docs on production environment
-REST_FRAMEWORK_DOCS = {"HIDE_DOCS": False}
+REST_FRAMEWORK_DOCS = {"HIDE_DOCS": True}
 
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
+    "throttling": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+}
 # Port number for the python-memcached cache backend.
 CACHES["default"]["LOCATION"] = os.environ.get(  # noqa: ignore=F405
     "MEMCACHED_LOCATION"
