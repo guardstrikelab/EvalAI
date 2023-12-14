@@ -4506,7 +4506,7 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_pk):
     print(f"request:{request}, challenge_host_team_pk:{challenge_host_team_pk}")
     try:
-        challenge_host_team = ChallengeHostTeam.objects.get(
+        ChallengeHostTeam.objects.get(
             pk=challenge_host_team_pk
         )
     except ChallengeHostTeam.DoesNotExist:
