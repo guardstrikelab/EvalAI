@@ -713,7 +713,9 @@ def get_all_challenges(request, challenge_time, challenge_approved, challenge_pu
 
     # don't return disabled challenges
     q_params["is_disabled"] = False
-
+    title = request.GET.get("title")
+    if title:
+        q_params["title__icontains"] = title
     challenge = Challenge.objects.filter(**q_params).order_by("-pk")
     paginator, result_page = paginated_queryset(challenge, request)
     serializer = ChallengeSerializer(
@@ -779,6 +781,35 @@ def get_challenge_by_pk(request, pk):
     """
     Returns a particular challenge by id
     """
+    try:
+        if is_user_a_host_of_challenge(request.user, pk):
+            challenge = Challenge.objects.get(pk=pk)
+        else:
+            challenge = Challenge.objects.get(
+                pk=pk, approved_by_admin=True, published=True
+            )
+        if challenge.is_disabled:
+            response_data = {"error": "Sorry, the challenge was removed!"}
+            return Response(
+                response_data, status=status.HTTP_406_NOT_ACCEPTABLE
+            )
+        serializer = ChallengeSerializer(
+            challenge, context={"request": request}
+        )
+        response_data = serializer.data
+        return Response(response_data, status=status.HTTP_200_OK)
+    except Challenge.DoesNotExist:
+        response_data = {"error": "Challenge does not exist!"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+
+@api_view(["GET"])
+@throttle_classes([AnonRateThrottle])
+def get_challenge_home(request):
+    """
+    Returns a particular challenge by id
+    """
+    pk = os.environ.get("INDEX_CHALLENGE_PK", 1)  # TODO set the frontend can be configured to display the challenge
     try:
         if is_user_a_host_of_challenge(request.user, pk):
             challenge = Challenge.objects.get(pk=pk)
@@ -3091,8 +3122,7 @@ def get_challenge_phase_by_slug(request, slug):
 @permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))
 @authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
 def get_challenge_phase_environment_url(request, slug):
-    """
-    Returns environment image url and tag required for RL challenge evaluation
+    """    Returns environment image url and tag required for RL challenge evaluation
     """
     try:
         challenge_phase = ChallengePhase.objects.get(slug=slug)
@@ -4389,6 +4419,148 @@ def create_or_update_github_challenge(request, challenge_host_team_pk):
         logger.info("Challenge config validation failed. Zip folder removed")
         response_data["error"] = "\n".join(error_messages)
         return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@throttle_classes([UserRateThrottle])
+@permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))
+@authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
+def create_or_update_challenge(request, challenge_host_team_pk):
+    print(f"request:{request}, challenge_host_team_pk:{challenge_host_team_pk}")
+    try:
+        challenge_host_team = ChallengeHostTeam.objects.get(
+            pk=challenge_host_team_pk
+        )
+    except ChallengeHostTeam.DoesNotExist:
+        response_data = {"error": "ChallengeHostTeam does not exist"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    if not ChallengeHost.objects.filter(
+            user=request.user, team_name_id=challenge_host_team_pk
+    ).exists():
+        response_data = {
+            "error": "Sorry, you do not belong to this Host Team!"
+        }
+        return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+
+    challenge_pk = request.data.get("id")
+    if not challenge_pk:
+        serializer = ZipChallengeSerializer(
+            data=request.data,
+            context={
+                "challenge_host_team": challenge_host_team,
+                "request": request,
+            },
+        )
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        challenge = serializer.instance
+        queue_name = get_queue_name(challenge.title, challenge.pk)
+        challenge.queue = queue_name
+        serializer.save()
+        challenge = get_challenge_model(serializer.instance.pk)
+
+        serializer = ChallengeSerializer(challenge)
+        response_data = serializer.data
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    else:
+        try:
+            challenge = get_challenge_model(challenge_pk)
+        except Challenge.DoesNotExist:
+            response_data = {
+                "error": "Challenge not found!"
+            }
+            return Response(response_data, status=status.HTTP_404_NOT_FOUND)
+        challenge.title = request.data.get("title")
+        challenge.short_description = request.data.get("short_description")
+        challenge.description = request.data.get("description")
+        challenge.evaluation_details = request.data.get("evaluation_details")
+        challenge.terms_and_conditions = request.data.get("terms_and_conditions")
+        challenge.submission_guidelines = request.data.get("submission_guidelines")
+        challenge.leaderboard_description = request.data.get("leaderboard_description")
+        start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
+        challenge.start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%SZ")
+        challenge.end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        challenge.published = request.data.get("published")
+        try:
+            challenge.save()
+        except Exception as e:  # noqa: E722
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        response_data = {
+            "message": "Challenge updated successfully!"
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@throttle_classes([UserRateThrottle])
+@permission_classes(
+    (
+            permissions.IsAuthenticatedOrReadOnly,
+            HasVerifiedEmail,
+            IsChallengeCreator,
+    )
+)
+@authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
+def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_pk):
+    print(f"request:{request}, challenge_host_team_pk:{challenge_host_team_pk}")
+    try:
+        challenge_host_team = ChallengeHostTeam.objects.get(
+            pk=challenge_host_team_pk
+        )
+    except ChallengeHostTeam.DoesNotExist:
+        response_data = {"error": "ChallengeHostTeam does not exist"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    try:
+        challenge = Challenge.objects.get(pk=challenge_pk)
+    except Challenge.DoesNotExist:
+        response_data = {"error": "Challenge does not exist"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+    challenge_phase_pk = request.data.get("id")
+    if not challenge_phase_pk:
+        serializer = ChallengePhaseCreateSerializer(
+            data=request.data, context={"challenge": challenge}
+        )
+        if serializer.is_valid():
+            serializer.save()
+            challenge_phase = get_challenge_phase_model(serializer.instance.pk)
+            serializer = ChallengePhaseSerializer(challenge_phase)
+            response_data = serializer.data
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        try:
+            challenge_phase = get_challenge_phase_model(challenge_phase_pk)
+        except ChallengePhase.DoesNotExist:
+            response_data = {"error": "Challenge Phase does not exist"}
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        challenge_phase.name = request.data.get("name")
+        challenge_phase.description = request.data.get("description")
+        challenge_phase.leaderboard_public = request.data.get("leaderboard_public")
+        challenge_phase.is_public = request.data.get("is_public")
+        challenge_phase.is_submission_public = request.data.get("is_submission_public")
+        start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
+        challenge_phase.start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+        end_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
+        challenge_phase.end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        challenge_phase.test_annotation_file = request.data.get("test_annotation_file")
+        challenge_phase.codename = request.data.get("codename")
+        challenge_phase.max_submissions_per_day = request.data.get("max_submissions_per_day")
+        challenge_phase.max_submissions_per_month = request.data.get("max_submissions_per_month")
+        challenge_phase.max_submissions = request.data.get("max_submissions")
+        challenge_phase.is_restricted_to_select_one_submission = request.data.get("is_restricted_to_select_one_submission")
+        challenge_phase.is_partial_submission_evaluation_enabled = request.data.get("is_partial_submission_evaluation_enabled")
+        challenge_phase.allowed_submission_file_types = request.data.get("allowed_submission_file_types")
+        try:
+            challenge_phase.save()
+        except Exception as e:  # noqa: E722
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        response_data = {
+            "message": "Challenge phase updated successfully!"
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

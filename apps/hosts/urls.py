@@ -38,6 +38,11 @@ urlpatterns = [
         views.invite_host_to_team,
         name="invite_host_to_team",
     ),
+    url(
+        r"^challenge_host/verify_user$",
+        views.verify_user,
+        name="verify_user",
+    ),
 ]
 
 app_name = "hosts"

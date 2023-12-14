@@ -4,12 +4,16 @@ services:
     image: postgres:10.4
     ports:
       - "5432:5432"
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   sqs:
     image: softwaremill/elasticmq
     hostname: sqs
     ports:
       - 9324:9324
+    volumes:
+      - /etc/localtime:/etc/localtime
 
   django:
     hostname: django
@@ -20,12 +24,13 @@ services:
       dockerfile: docker/dev/django/Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - .:/code
+      - /etc/localtime:/etc/localtime
     depends_on:
       - db
       - sqs
       - statsd-exporter
-    volumes:
-      - .:/code
 
 #  worker:
 #    env_file:
@@ -77,10 +82,11 @@ services:
       NODE_ENV: development
     ports:
       - "8888:8888"
-    depends_on:
-      - django
     volumes:
       - ./frontend:/code
+      - /etc/localtime:/etc/localtime
+    depends_on:
+      - django
 
   statsd-exporter:
     hostname: statsd
@@ -91,3 +97,5 @@ services:
     ports:
       - '9125:9125'
       - '9102:9102'
+    volumes:
+      - /etc/localtime:/etc/localtime

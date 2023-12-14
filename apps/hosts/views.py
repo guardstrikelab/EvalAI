@@ -308,3 +308,31 @@ def invite_host_to_team(request, pk):
         }
         return Response(response_data, status=status.HTTP_202_ACCEPTED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@throttle_classes([UserRateThrottle])
+@permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))
+@authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
+def verify_user(request):
+
+    try:
+        challenge_host_team = ChallengeHostTeam.objects.get(pk=1)
+    except ChallengeHostTeam.DoesNotExist:
+        response_data = {"error": "Host Team does not exist"}
+        return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    # Check if the user requesting this API is part of host team
+    if not is_user_part_of_host_team(request.user, challenge_host_team):
+        response_data = {"error": "You are not a member of this team!"}
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+    # host = ChallengeHost.objects.filter(
+    #     team_name=challenge_host_team, user=user
+    # )
+    #
+    # if host.exists():
+    #     response_data = {"error": "User is already part of the team!"}
+    #     return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
+    response_data = {"success": "User is part of the host team!"}
+    return Response(response_data, status=status.HTTP_200_OK)

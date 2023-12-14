@@ -65,6 +65,11 @@ urlpatterns = [
         name="get_challenge_by_pk",
     ),
     url(
+        r"^/home$",
+        views.get_challenge_home,
+        name="get_challenge_home",
+    ),
+    url(
         r"^challenge$",
         views.get_challenges_based_on_teams,
         name="get_challenges_based_on_teams",
@@ -225,6 +230,16 @@ urlpatterns = [
         r"challenge/challenge_host_team/(?P<challenge_host_team_pk>[0-9]+)/create_or_update_github_challenge/$",
         views.create_or_update_github_challenge,
         name="create_or_update_github_challenge",
+    ),
+    url(
+        r"challenge/challenge_host_team/(?P<challenge_host_team_pk>[0-9]+)/create_or_update_challenge/$",
+        views.create_or_update_challenge,
+        name="create_or_update_challenge",
+    ),
+    url(
+        r"challenge/challenge_host_team/(?P<challenge_host_team_pk>[0-9]+)/challenges/(?P<challenge_pk>[0-9]+)/create_or_update_challenge_phase/$",
+        views.create_or_update_challenge_phase,
+        name="create_or_update_challenge_phase",
     ),
     url(
         r"^get_all_challenge_templates/$",
