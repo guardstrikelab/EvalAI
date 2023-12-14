@@ -14,7 +14,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = (
     "https://arena.s3.cn-northwest-1.amazonaws.com.cn",
-    "https://arena.synkrotron.ai",
+    "http://arena.synkrotron.ai",
     "http://beta.synkrotron.ai",
 )
 
