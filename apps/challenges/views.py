@@ -4497,9 +4497,9 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 @throttle_classes([UserRateThrottle])
 @permission_classes(
     (
-            permissions.IsAuthenticatedOrReadOnly,
-            HasVerifiedEmail,
-            IsChallengeCreator,
+        permissions.IsAuthenticatedOrReadOnly,
+        HasVerifiedEmail,
+        IsChallengeCreator,
     )
 )
 @authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
