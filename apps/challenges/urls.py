@@ -65,7 +65,7 @@ urlpatterns = [
         name="get_challenge_by_pk",
     ),
     url(
-        r"^/home$",
+        r"^home$",
         views.get_challenge_home,
         name="get_challenge_home",
     ),

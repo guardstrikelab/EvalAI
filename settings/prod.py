@@ -1,5 +1,5 @@
 from .common import *  # noqa: ignore=F405
-
+from corsheaders.defaults import default_headers
 import os
 # import raven
 
@@ -37,7 +37,7 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-    'noMessage',
+    'Nomessage',
 ]
 
 DATABASES = {
