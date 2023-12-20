@@ -4,7 +4,7 @@ from corsheaders.defaults import default_methods
 import os
 # import raven
 
-DEBUG = False
+DEBUG = True
 TEST = False
 ALLOWED_HOSTS = ["*"]
 
