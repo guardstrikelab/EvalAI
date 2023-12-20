@@ -4445,6 +4445,8 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 
     challenge_pk = request.data.get("id")
     if not challenge_pk:
+        request.data["is_docker_based"] = True
+        request.data["approved_by_admin"] = True
         serializer = ZipChallengeSerializer(
             data=request.data,
             context={
@@ -4454,12 +4456,13 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         )
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.save()
         challenge = serializer.instance
         queue_name = get_queue_name(challenge.title, challenge.pk)
         challenge.queue = queue_name
-        serializer.save()
-        challenge = get_challenge_model(serializer.instance.pk)
+        challenge.save()
 
+        challenge = get_challenge_model(serializer.instance.pk)
         serializer = ChallengeSerializer(challenge)
         response_data = serializer.data
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -4478,11 +4481,11 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.terms_and_conditions = request.data.get("terms_and_conditions")
         challenge.submission_guidelines = request.data.get("submission_guidelines")
         challenge.leaderboard_description = request.data.get("leaderboard_description")
-        start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
-        challenge.start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
-        end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%SZ")
-        challenge.end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
+        challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge.published = request.data.get("published")
+        challenge.is_docker_based = True
+        challenge.approved_by_admin = True
         try:
             challenge.save()
         except Exception as e:  # noqa: E722
@@ -4504,7 +4507,6 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 )
 @authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
 def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_pk):
-    print(f"request:{request}, challenge_host_team_pk:{challenge_host_team_pk}")
     try:
         ChallengeHostTeam.objects.get(
             pk=challenge_host_team_pk
@@ -4520,16 +4522,53 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
     challenge_phase_pk = request.data.get("id")
     if not challenge_phase_pk:
-        serializer = ChallengePhaseCreateSerializer(
-            data=request.data, context={"challenge": challenge}
-        )
-        if serializer.is_valid():
-            serializer.save()
-            challenge_phase = get_challenge_phase_model(serializer.instance.pk)
-            serializer = ChallengePhaseSerializer(challenge_phase)
-            response_data = serializer.data
-            return Response(response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            with transaction.atomic():
+                request.data["slug"] = "{}-{}-{}".format(
+                    challenge.title.split(" ")[0].lower(),
+                    get_slug(request.data["codename"]),
+                    challenge.pk,
+                )[:198]
+                serializer = ChallengePhaseCreateSerializer(
+                    data=request.data, context={"challenge": challenge}
+                )
+                if serializer.is_valid():
+                    serializer.save()
+                    challenge_phase = get_challenge_phase_model(serializer.instance.pk)
+                    serializer = ChallengePhaseSerializer(challenge_phase)
+                    response_data = serializer.data
+
+                    data = {
+                        "id": challenge_phase.pk,
+                        "name": "Split " + str(challenge_phase.pk),
+                        "codename": "split1"
+                    }
+                    serializer = DatasetSplitSerializer(data=data, context={"config_id": ""})
+                    if serializer.is_valid():
+                        serializer.save()
+                        response_data["dataset_split"] = serializer.data
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+                    data = {
+                        "challenge_phase": challenge_phase.pk,
+                        "leaderboard": 21,  # Todo Destroy the magic number
+                        "dataset_split": serializer.instance.pk,
+                        "visibility": ChallengePhaseSplit.PUBLIC
+                        # "is_leaderboard_order_descending": is_leaderboard_order_descending,
+                        # "leaderboard_decimal_precision": leaderboard_decimal_precision
+                    }
+                    serializer = ZipChallengePhaseSplitSerializer(data=data)
+                    if serializer.is_valid():
+                        serializer.save()
+                        response_data["challenge_phase_split"] = serializer.data
+                    else:
+                        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    return Response(response_data, status=status.HTTP_201_CREATED)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
     else:
         try:
             challenge_phase = get_challenge_phase_model(challenge_phase_pk)
@@ -4541,10 +4580,8 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         challenge_phase.leaderboard_public = request.data.get("leaderboard_public")
         challenge_phase.is_public = request.data.get("is_public")
         challenge_phase.is_submission_public = request.data.get("is_submission_public")
-        start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
-        challenge_phase.start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
-        end_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%SZ")
-        challenge_phase.end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
+        challenge_phase.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
+        challenge_phase.end_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge_phase.test_annotation_file = request.data.get("test_annotation_file")
         challenge_phase.codename = request.data.get("codename")
         challenge_phase.max_submissions_per_day = request.data.get("max_submissions_per_day")

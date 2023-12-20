@@ -1,9 +1,11 @@
 from .common import *  # noqa: ignore=F405
+from corsheaders.defaults import default_headers
+from corsheaders.defaults import default_methods
 import os
 # import raven
 
-DEBUG = True
-TEST = True
+DEBUG = False
+TEST = False
 ALLOWED_HOSTS = ["*"]
 
 # Database
@@ -13,34 +15,25 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = (
     "https://arena.s3.cn-northwest-1.amazonaws.com.cn",
-    "http://arena.synkrotron.ai",
+    "https://beta.synkrotron.ai",
     "http://beta.synkrotron.ai",
+    "https://arena.synkrotron.ai",
+    "http://arena.synkrotron.ai",
 )
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
+CORS_ALLOW_METHODS = (
+    *default_methods,
+    "POKE",
+)
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+CORS_ALLOW_HEADERS = (
+    *default_headers,
     'Nomessage',
+    'istoken',
     'XMLHttpRequest',
-    'X_FILENAME',
-    'Pragma',
-]
+    'Access-Control-Allow-Origin',
+)
+
 
 DATABASES = {
     "default": {

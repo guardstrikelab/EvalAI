@@ -336,7 +336,7 @@ def create_federated_user(name, repository, aws_keys):
             {
                 "Effect": "Allow",
                 "Action": "ecr:*",
-                "Resource": "arn:aws:ecr:{}:{}:repository/{}".format(
+                "Resource": "arn:aws-cn:ecr:{}:{}:repository/{}".format(
                     AWS_REGION, AWS_ACCOUNT_ID, repository
                 ),
             },

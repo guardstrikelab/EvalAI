@@ -231,6 +231,7 @@ export default {
     deregisterTeam: 'Deregister Partipant Team',
     deregisterConfirm: 'Are you sure you want to deregister team?',
     phasePH: 'Select phase',
+    orderPH: 'Order by metric',
     notCancelled: 'Only unproccessed submissions can be cancelled',
     changeMade: 'The submission is made ',
     public: 'public',

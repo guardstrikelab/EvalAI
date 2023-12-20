@@ -1,5 +1,6 @@
 from .common import *  # noqa: ignore=F405
-
+from corsheaders.defaults import default_headers
+from corsheaders.defaults import default_methods
 import warnings
 
 # Database
@@ -8,6 +9,23 @@ import warnings
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+
+CORS_ALLOWED_ORIGINS = (
+    "http://127.0.0.1:8888",
+)
+
+CORS_ALLOW_METHODS = (
+    *default_methods,
+    "POKE",
+)
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    'Nomessage',
+    'istoken',
+    'XMLHttpRequest',
+    'Access-Control-Allow-Origin',
+)
 
 DATABASES = {
     "default": {

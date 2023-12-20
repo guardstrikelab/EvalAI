@@ -229,6 +229,7 @@ export default {
     deregisterTeam: '退出比赛',
     deregisterConfirm: '你确定团队要退出比赛吗？',
     phasePH: '选择阶段',
+    orderPH: '排序指标',
     notCancelled: '只有未处理的提交才能取消',
     changeMade: '提交已被置为',
     public: '公开',

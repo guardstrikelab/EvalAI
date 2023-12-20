@@ -4,8 +4,6 @@ services:
     image: postgres:10.4
     ports:
       - "5432:5432"
-    volumes:
-      - /etc/localtime:/etc/localtime
 
   sqs:
     image: softwaremill/elasticmq

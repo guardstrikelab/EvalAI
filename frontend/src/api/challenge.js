@@ -114,4 +114,8 @@ export const getChallengeHomeDetail = () =>
   service({
     method: 'get',
     url: `/api/challenges/home`,
+    headers: {
+      noMessage: true,
+      isToken: false,
+    },
   });
