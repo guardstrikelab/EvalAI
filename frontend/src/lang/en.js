@@ -249,6 +249,8 @@ export default {
     verifySubmission: 'Verify submission',
     sureCancelSubmission: 'Are you sure you want to cancel submission?',
     cancelSuccess: 'Submission cancelled successfully!',
+    rerun: 'Rerun',
+    resume: 'Resume',
   },
   leaderboard: {
     team: 'Participant team',

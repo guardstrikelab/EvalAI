@@ -247,6 +247,8 @@ export default {
     verifySubmission: '验证提交',
     sureCancelSubmission: '您确定要取消提交吗?',
     cancelSuccess: '提交成功取消!',
+    rerun: '重新执行',
+    resume: '恢复',
   },
   leaderboard: {
     team: '团队',

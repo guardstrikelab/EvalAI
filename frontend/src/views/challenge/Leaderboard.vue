@@ -12,7 +12,7 @@
 
   <el-table :data="leaderboardList" stripe style="width: 100%" header-cell-class-name="thBg">
     <el-table-column fixed prop="rank" :label="$t('leaderboard.rank')" width="80" />
-    <el-table-column sortable prop="submission__participant_team__team_name" :label="$t('leaderboard.team')" />
+    <el-table-column fixed sortable prop="submission__participant_team__team_name" :label="$t('leaderboard.team')" />
     <!-- <el-table-column sortable prop="filtering_score" :label="$t('leaderboard.score')" /> -->
     <el-table-column sortable :label="label" v-for="(label, i) in labels" :key="label">
       <template #default="{ row }">
@@ -43,7 +43,7 @@ const isByScore = ref(false);
 const curOrderBy = ref('');
 const labels = ref([]);
 const getSplitLabel = (item) => {
-  return `Phase: ${item.challenge_phase_name},  Split: ${item.dataset_split_name}`;
+  return `Phase: ${item.challenge_phase_name}`;
 };
 onMounted(() => {
   getPhaseSplit(props.challengeId).then((res) => {

@@ -109,6 +109,20 @@ export const updateSubmissionMeta = (challengeId, submissionId, data) =>
     data,
   });
 
+// 重新执行执行任务
+export const reRunSubmission = (submission_pk) =>
+  service({
+    method: 'post',
+    url: `/api/jobs/submissions/${submission_pk}/re-run/`,
+  });
+
+// 继续执行执行任务
+export const resumeSubmission = (submission_pk) =>
+  service({
+    method: 'post',
+    url: `/api/jobs/submissions/${submission_pk}/resume/`,
+  });
+
 // 获取宣传的比赛详情
 export const getChallengeHomeDetail = () =>
   service({
