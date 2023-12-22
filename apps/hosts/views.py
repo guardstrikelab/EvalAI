@@ -324,15 +324,8 @@ def verify_user(request):
 
     # Check if the user requesting this API is part of host team
     if not is_user_part_of_host_team(request.user, challenge_host_team):
-        response_data = {"error": "You are not a member of this team!"}
+        response_data = {"error": "You are not a member of host team!"}
         return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
-    # host = ChallengeHost.objects.filter(
-    #     team_name=challenge_host_team, user=user
-    # )
-    #
-    # if host.exists():
-    #     response_data = {"error": "User is already part of the team!"}
-    #     return Response(response_data, status=status.HTTP_406_NOT_ACCEPTABLE)
     response_data = {"success": "User is part of the host team!"}
     return Response(response_data, status=status.HTTP_200_OK)

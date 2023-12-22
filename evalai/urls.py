@@ -35,9 +35,9 @@ handler500 = "web.views.internal_server_error"
 redirectUrl = os.environ.get("HOSTNAME")
 
 swagger_api_info = openapi.Info(
-    title="EvalAI API",
+    title="Arena API",
     default_version="v1",
-    description="EvalAI Documentation",
+    description="Arena Documentation",
     contact=openapi.Contact(email="team@cloudcv.org"),
     license=openapi.License(name="BSD License"),
 )
