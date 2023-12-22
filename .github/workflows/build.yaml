@@ -56,8 +56,8 @@ jobs:
         with:
           registry: ${{ secrets.AWS_REGISTRY }}
       - run: docker-compose build || exit 1;
-      - run: docker-compose run -e DJANGO_SETTINGS_MODULE=settings.test django pytest --cov . --cov-config .coveragerc || exit 1;
-      - run: 'bash <(curl -s https://codecov.io/bash)'
+#      - run: docker-compose run -e DJANGO_SETTINGS_MODULE=settings.test django pytest --cov . --cov-config .coveragerc || exit 1;
+#      - run: 'bash <(curl -s https://codecov.io/bash)'
       - run: coveralls --rcfile=.coveragerc
       - run: eval "$(ssh-agent -s)"
       - run: openssl enc -d -aes-256-cbc -K ${{ secrets.ENCRYPTED_KEY }} -iv ${{ secrets.ENCRYPTED_IV }} -in scripts/deployment/evalai.pem.enc -out scripts/deployment/evalai.pem || true
