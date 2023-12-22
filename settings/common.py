@@ -32,7 +32,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "random_secret_key")
 DEBUG = True
 TEST = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = []
 
 EVALAI_API_SERVER = os.environ.get(
     "EVALAI_API_SERVER", "http://localhost:8000"
@@ -407,4 +407,4 @@ EKS_CLUSTER_TRUST_RELATION = {
 }
 
 # SQS Queue Message Retention Period
-SQS_RETENTION_PERIOD = "1209600"
+SQS_RETENTION_PERIOD = "345600"
