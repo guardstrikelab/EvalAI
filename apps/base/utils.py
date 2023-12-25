@@ -1,3 +1,4 @@
+import hashlib
 import base64
 import json
 import logging
@@ -339,3 +340,59 @@ def is_user_a_staff(user):
         {bool} : True/False if the user is staff or not
     """
     return user.is_staff
+
+
+def calculate_image_hash(image):
+    # 设定图像哈希算法（这里使用MD5）
+    hasher = hashlib.md5()
+
+    # 逐块读取图像文件并计算哈希值
+    for chunk in image.chunks():
+        hasher.update(chunk)
+
+    # 返回图像的哈希值
+    return hasher.hexdigest()
+
+
+def upload_image_to_s3(image):
+    """
+    Function to upload an image to Amazon S3 and return the access URL.
+    Arguments:
+        image {File} -- The image file to be uploaded.
+    Returns:
+        s3_img_access_url {str} -- The access URL of the uploaded image.
+    """
+    response_data = {}
+    try:
+        aws_keys = {
+            "AWS_ACCOUNT_ID": os.environ.get("AWS_ACCOUNT_ID", "x"),
+            "AWS_ACCESS_KEY_ID": os.environ.get("AWS_ACCESS_KEY_ID", "x"),
+            "AWS_SECRET_ACCESS_KEY": os.environ.get("AWS_SECRET_ACCESS_KEY", "x"),
+            "AWS_REGION": os.environ.get("AWS_DEFAULT_REGION", "us-east-1"),
+            "AWS_IMAGES_BUCKET_NAME": os.environ.get(
+                "AWS_IMAGES_BUCKET_NAME", "aimg"
+            ),
+            "AWS_STORAGE_DIR_NAME": os.environ.get("AWS_STORAGE_DIR_NAME", "images")
+        }
+        s3_client = get_boto3_client("s3", aws_keys)
+        response = s3_client.list_objects_v2(Bucket=aws_keys['AWS_IMAGES_BUCKET_NAME'])
+        if 'Contents' in response:
+            # 逐个检查对象的哈希值
+            for obj in response['Contents']:
+                hash_value = calculate_image_hash(image)
+                if obj['ETag'][1:-1] == hash_value:
+                    # 如果找到具有相同哈希值的对象，则返回对象的访问地址
+                    object_key = obj['Key']
+                    s3_img_access_url = f"https://{aws_keys['AWS_IMAGES_BUCKET_NAME']}.s3.{aws_keys['AWS_REGION']}.amazonaws.com.cn/{object_key}"
+                    return s3_img_access_url
+
+        file_extension = os.path.splitext(image.name)[1]
+        object_name = str(uuid.uuid4()) + file_extension
+        object_key = f"{aws_keys['AWS_STORAGE_DIR_NAME']}/{object_name}"
+        image.seek(0)
+        s3_client.upload_fileobj(image, aws_keys['AWS_IMAGES_BUCKET_NAME'], object_key)
+        s3_img_access_url = f"https://{aws_keys['AWS_IMAGES_BUCKET_NAME']}.s3.{aws_keys['AWS_REGION']}.amazonaws.com.cn/{object_key}"
+        return s3_img_access_url
+    except Exception as e:
+        logger.exception(e)
+    return response_data

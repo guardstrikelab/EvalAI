@@ -11,6 +11,7 @@ urlpatterns = [
         views.notify_users_about_challenge,
         name="notify_users_about_challenge",
     ),
+    url('upload_image/', views.upload_image, name='upload_image'),
 ]
 
 app_name = "web"

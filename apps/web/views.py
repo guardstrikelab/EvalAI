@@ -1,6 +1,6 @@
 import logging
 import traceback
-from base.utils import send_slack_notification
+from base.utils import send_slack_notification, upload_image_to_s3
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -195,3 +195,22 @@ def our_team(request):
             response_data = {"message", "Successfully added the contributor."}
             return Response(response_data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@throttle_classes([AnonRateThrottle])
+@permission_classes((permissions.AllowAny,))
+def upload_image(request):
+    if request.method == 'POST' and request.FILES.get('image'):
+        image = request.FILES['image']
+        if image.size == 0:
+            return Response({'error': 'Image size is 0'}, status=status.HTTP_400_BAD_REQUEST)
+        logger.info(f"image size: {image.size}")
+        s3_img_access_url = upload_image_to_s3(image)
+        if s3_img_access_url:
+            response_data = {"message": "Successfully added the image.", "image_url": s3_img_access_url}
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'Error uploading image to S3.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    else:
+        return Response({'error': 'No image found or invalid request.'}, status=status.HTTP_400_BAD_REQUEST)
