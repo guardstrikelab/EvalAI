@@ -2,7 +2,7 @@ from .common import *  # noqa: ignore=F405
 from corsheaders.defaults import default_headers
 from corsheaders.defaults import default_methods
 import os
-import raven
+# import raven
 
 DEBUG = False
 
@@ -97,12 +97,12 @@ CACHES["default"]["LOCATION"] = os.environ.get(  # noqa: ignore=F405
     "MEMCACHED_LOCATION"
 )  # noqa: ignore=F405
 
-RAVEN_CONFIG = {
-    "dsn": os.environ.get("SENTRY_URL"),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
-}
+# RAVEN_CONFIG = {
+#     "dsn": os.environ.get("SENTRY_URL"),
+#     # If you are using git, you can also automatically configure the
+#     # release based on the git info.
+#     "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
+# }
 
 # https://docs.djangoproject.com/en/1.10/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -112,8 +112,8 @@ LOGGING["root"] = {  # noqa
     "handlers": ["console", "logfile"],
 }
 
-LOGGING["handlers"]["sentry"] = {  # noqa
-    "level": "ERROR",
-    "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-    "tags": {"custom-tag": "x"},
-}
+# LOGGING["handlers"]["sentry"] = {  # noqa
+#     "level": "ERROR",
+#     "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+#     "tags": {"custom-tag": "x"},
+# }
