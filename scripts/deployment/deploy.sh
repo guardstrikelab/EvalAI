@@ -68,7 +68,7 @@ case $opt in
         fi
 
         if ! command -v unzip &> /dev/null; then
-          sudo apt-get install unzip
+          sudo apt-get install zip
         fi
 
         if command -v aws &> /dev/null; then

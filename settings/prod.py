@@ -2,10 +2,10 @@ from .common import *  # noqa: ignore=F405
 from corsheaders.defaults import default_headers
 from corsheaders.defaults import default_methods
 import os
-# import raven
+import raven
 
-DEBUG = True
-TEST = False
+DEBUG = False
+
 ALLOWED_HOSTS = ["*"]
 
 # Database
@@ -34,7 +34,6 @@ CORS_ALLOW_HEADERS = (
     'Access-Control-Allow-Origin',
 )
 
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -52,29 +51,7 @@ DATADOG_API_KEY = os.environ.get("DATADOG_API_KEY")
 
 MIDDLEWARE += ["middleware.metrics.DatadogMiddleware"]  # noqa
 
-# INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
-INSTALLED_APPS += [  # noqa: ignore=F405
-    "django_spaghetti",
-    "autofixture",
-    "debug_toolbar",
-    "django_extensions",
-    "silk",
-]
-
-SPAGHETTI_SAUCE = {
-    "apps": [
-        "auth",
-        "accounts",
-        "analytics",
-        "base",
-        "challenges",
-        "hosts",
-        "jobs",
-        "participants",
-        "web",
-    ],
-    "show_fields": True,
-}
+INSTALLED_APPS += ("storages", "raven.contrib.django.raven_compat")  # noqa
 
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
 AWS_DEFAULT_REGION = os.environ.get("AWS_DEFAULT_REGION")
@@ -99,11 +76,7 @@ MEDIA_URL = "http://%s.s3.%s.amazonaws.com.cn/%s/" % (
     MEDIAFILES_LOCATION,
 )
 DEFAULT_FILE_STORAGE = "settings.custom_storages.MediaStorage"
-
-MIDDLEWARE += [  # noqa: ignore=F405
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "silk.middleware.SilkyMiddleware",
-]
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Setup Email Backend related settings
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
@@ -119,21 +92,17 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 # Hide API Docs on production environment
 REST_FRAMEWORK_DOCS = {"HIDE_DOCS": True}
 
-CACHES = {
-    "default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"},
-    "throttling": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
-}
 # Port number for the python-memcached cache backend.
 CACHES["default"]["LOCATION"] = os.environ.get(  # noqa: ignore=F405
     "MEMCACHED_LOCATION"
 )  # noqa: ignore=F405
 
-# RAVEN_CONFIG = {
-#     "dsn": os.environ.get("SENTRY_URL"),
-#     # If you are using git, you can also automatically configure the
-#     # release based on the git info.
-#     "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
-# }
+RAVEN_CONFIG = {
+    "dsn": os.environ.get("SENTRY_URL"),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    "release": raven.fetch_git_sha(os.path.dirname(os.pardir)),
+}
 
 # https://docs.djangoproject.com/en/1.10/ref/settings/#secure-proxy-ssl-header
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -142,9 +111,9 @@ LOGGING["root"] = {  # noqa
     "level": "INFO",
     "handlers": ["console", "logfile"],
 }
-#
-# LOGGING["handlers"]["sentry"] = {  # noqa
-#     "level": "ERROR",
-#     "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
-#     "tags": {"custom-tag": "x"},
-# }
+
+LOGGING["handlers"]["sentry"] = {  # noqa
+    "level": "ERROR",
+    "class": "raven.contrib.django.raven_compat.handlers.SentryHandler",
+    "tags": {"custom-tag": "x"},
+}

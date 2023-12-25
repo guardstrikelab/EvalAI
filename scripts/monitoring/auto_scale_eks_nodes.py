@@ -26,7 +26,7 @@ SCALE_UP_DESIRED_SIZE = 1
 # Env Variables
 ENV = os.environ.get("ENV", "production")
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
-EVALAI_ENDPOINT = os.environ.get("API_HOST_URL", "https://arena.synkrotron.ai")
+EVALAI_ENDPOINT = os.environ.get("API_HOST_URL", "http://localhost:8000")
 
 json_path = os.environ.get("JSON_PATH", "~/prod_eks_auth_tokens.json")
 # QUEUES
