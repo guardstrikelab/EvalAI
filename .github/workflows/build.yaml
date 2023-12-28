@@ -41,10 +41,6 @@ jobs:
       - run: export DISPLAY=:99.0
       - run: pip install awscli==1.18.66 importlib-metadata==4.8.3 flake8==3.8.4 coveralls==3.3.1
       - run: flake8 ./ || exit 1;
-#      - run: >-
-#          if [ $TRAVIS_PULL_REQUEST = false ]; then echo $DOCKER_PASSWORD
-#          | docker login --username $DOCKER_USERNAME --password-stdin ||
-#          exit 1; fi
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
