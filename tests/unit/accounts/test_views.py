@@ -49,6 +49,7 @@ class TestUpdateUser(BaseAPITestClass):
             "github_url": "https://github.url",
             "google_scholar_url": "https://google-scholar.url",
             "linkedin_url": "https://linkedin.url",
+            "avatar": "https://avatar.url",
             "password": "secret_password",
         }
         response = self.client.put(

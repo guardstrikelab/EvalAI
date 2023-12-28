@@ -96,6 +96,7 @@ class GetParticipantTeamTest(BaseAPITestClass):
                             "github_url": self.participant_profile.github_url,
                             "google_scholar_url": self.participant_profile.google_scholar_url,
                             "linkedin_url": self.participant_profile.linkedin_url,
+                            "avatar": self.participant_profile.avatar,
                         },
                     },
                     {
@@ -109,6 +110,7 @@ class GetParticipantTeamTest(BaseAPITestClass):
                             "github_url": self.participant2_profile.github_url,
                             "google_scholar_url": self.participant2_profile.google_scholar_url,
                             "linkedin_url": self.participant2_profile.linkedin_url,
+                            "avatar": self.participant2_profile.avatar,
                         },
                     },
                 ],
@@ -202,6 +204,7 @@ class GetParticularParticipantTeam(BaseAPITestClass):
                         "github_url": self.participant_profile.github_url,
                         "google_scholar_url": self.participant_profile.google_scholar_url,
                         "linkedin_url": self.participant_profile.linkedin_url,
+                        "avatar": self.participant_profile.avatar,
                     },
                 },
                 {
@@ -215,6 +218,7 @@ class GetParticularParticipantTeam(BaseAPITestClass):
                         "github_url": self.participant2_profile.github_url,
                         "google_scholar_url": self.participant2_profile.google_scholar_url,
                         "linkedin_url": self.participant2_profile.linkedin_url,
+                        "avatar": self.participant2_profile.avatar,
                     },
                 },
             ],

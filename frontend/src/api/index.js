@@ -130,7 +130,7 @@ service.interceptors.response.use(
       message = i18n.global.t('systemInterface') + ' ' + message.substr(message.length - 3) + ' ' + i18n.global.t('exception');
     }
     if (isShowMessage) {
-      ElMessage({ message: message, type: 'error', duration: 5 * 1000 });
+      ElMessage({ message: message, grouping: true, type: 'error', duration: 5 * 1000 });
     }
     return Promise.reject(error);
   }

@@ -24,6 +24,7 @@ class ProfileAdmin(ImportExportTimeStampedAdmin):
         "github_url",
         "google_scholar_url",
         "linkedin_url",
+        "avatar",
     )
     list_filter = (
         "receive_participated_challenge_updates",
@@ -36,6 +37,7 @@ class ProfileAdmin(ImportExportTimeStampedAdmin):
         "github_url",
         "google_scholar_url",
         "linkedin_url",
+        "avatar",
     )
 
 

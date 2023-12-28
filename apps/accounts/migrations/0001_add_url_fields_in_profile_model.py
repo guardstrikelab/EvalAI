@@ -25,4 +25,9 @@ class Migration(migrations.Migration):
             name="linkedin_url",
             field=models.URLField(blank=True, null=True),
         ),
+        migrations.AddField(
+            model_name="profile",
+            name="avatar",
+            field=models.URLField(blank=True, null=True),
+        ),
     ]

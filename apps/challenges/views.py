@@ -777,6 +777,7 @@ def get_featured_challenges(request):
 
 @api_view(["GET"])
 @throttle_classes([AnonRateThrottle])
+@permission_classes((permissions.AllowAny,))
 def get_challenge_by_pk(request, pk):
     """
     Returns a particular challenge by id
@@ -805,6 +806,7 @@ def get_challenge_by_pk(request, pk):
 
 @api_view(["GET"])
 @throttle_classes([AnonRateThrottle])
+@permission_classes((permissions.AllowAny,))
 def get_challenge_home(request):
     """
     Returns a particular challenge by id
@@ -1036,6 +1038,7 @@ def challenge_phase_detail(request, challenge_pk, pk):
 
 @api_view(["GET"])
 @throttle_classes([AnonRateThrottle])
+@permission_classes((permissions.AllowAny,))
 def challenge_phase_split_list(request, challenge_pk):
     """
     Returns the list of Challenge Phase Splits for a particular challenge
@@ -4447,6 +4450,9 @@ def create_or_update_challenge(request, challenge_host_team_pk):
     if not challenge_pk:
         request.data["is_docker_based"] = True
         request.data["approved_by_admin"] = True
+        request.data["enable_forum"] = True
+        request.data["is_registration_open"] = True
+        request.data["anonymous_leaderboard"] = True
         serializer = ZipChallengeSerializer(
             data=request.data,
             context={
@@ -4483,7 +4489,10 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.leaderboard_description = request.data.get("leaderboard_description")
         challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
-        challenge.published = request.data.get("published")
+        published = request.data.get("published")
+        if published is not None:
+            published = published.lower() == 'true'
+            challenge.published = published
         challenge.is_docker_based = True
         challenge.approved_by_admin = True
         try:

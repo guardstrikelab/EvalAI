@@ -47,6 +47,7 @@ class Profile(TimeStampedModel):
     github_url = models.URLField(max_length=200, null=True, blank=True)
     google_scholar_url = models.URLField(max_length=200, null=True, blank=True)
     linkedin_url = models.URLField(max_length=200, null=True, blank=True)
+    avatar = models.URLField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return "{}".format(self.user)
