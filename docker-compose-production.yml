@@ -41,37 +41,6 @@ services:
         awslogs-group: celery_production
         awslogs-create-group: "true"
 
-  worker:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-worker:${COMMIT_ID}
-    build:
-      context: ./
-      dockerfile: docker/prod/worker/Dockerfile
-    env_file:
-      - docker/prod/docker_production.env
-    volumes:
-      - /etc/localtime:/etc/localtime
-
-  worker_py3.8:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-worker-py3.8:${COMMIT_ID}
-    build:
-      context: ./
-      dockerfile: docker/prod/worker_py3.8/Dockerfile
-    env_file:
-      - docker/prod/docker_production.env
-    volumes:
-      - /etc/localtime:/etc/localtime
-
-  remote-worker:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-remote-worker:${COMMIT_ID}
-    build:
-      context: ./
-      dockerfile: docker/prod/worker/Dockerfile
-    command: ["python", "-m", "scripts.workers.remote_submission_worker"]
-    env_file:
-      - docker/prod/docker_remote_worker.env
-    volumes:
-      - /etc/localtime:/etc/localtime
-
   code-upload-worker:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com.cn/arena/evalai-production-code-upload-worker:${COMMIT_ID}
     env_file:
