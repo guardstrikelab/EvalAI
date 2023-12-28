@@ -4489,6 +4489,7 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.leaderboard_description = request.data.get("leaderboard_description")
         challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
+        challenge.image = request.data.get("image")
         published = request.data.get("published")
         if published is not None:
             published = published.lower() == 'true'
