@@ -69,7 +69,7 @@ urlpatterns = [
     ),
     url(
         r"^api/auth/email-confirmed/$",
-        RedirectView.as_view(url="http://" + redirectUrl + "/auth/verifyEmail"),
+        RedirectView.as_view(url="https://" + redirectUrl + "/auth/verifyEmail"),
         # TemplateView.as_view(template_name="account/email_confirm.html"),
         name="email_confirm_done",
     ),

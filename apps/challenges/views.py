@@ -4448,13 +4448,14 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 
     challenge_pk = request.data.get("id")
     if not challenge_pk:
-        request.data["is_docker_based"] = True
-        request.data["approved_by_admin"] = True
-        request.data["enable_forum"] = True
-        request.data["is_registration_open"] = True
-        request.data["anonymous_leaderboard"] = True
+        data = request.data.copy()
+        data["is_docker_based"] = True
+        data["approved_by_admin"] = True
+        data["enable_forum"] = True
+        data["is_registration_open"] = True
+        data["anonymous_leaderboard"] = False
         serializer = ZipChallengeSerializer(
-            data=request.data,
+            data=data,
             context={
                 "challenge_host_team": challenge_host_team,
                 "request": request,

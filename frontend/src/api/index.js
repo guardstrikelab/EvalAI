@@ -115,6 +115,11 @@ service.interceptors.response.use(
       message = getErrMsg(response.data.error);
     } else if (response.status == 401 && response.data?.detail) {
       message = getErrMsg(response.data.detail);
+      if (response.data.detail === 'Invalid token') {
+        store.dispatch('logOut').then(() => {
+          location.href = '/';
+        });
+      }
     } else if (response.status == 403 && response.data?.detail == 'Please verify your email!') {
       isShowMessage = false;
       router.push('/permissionDenied');
