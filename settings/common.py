@@ -217,7 +217,7 @@ CELERY_BROKER_URL = "sqs://%s:%s@" % (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
 CORS_ORIGIN_ALLOW_ALL = True
 
 # REST Framework Expiring Tokens Configuration
-EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(days=365)
+EXPIRING_TOKEN_LIFESPAN = datetime.timedelta(hours=1)
 
 # Logging
 LOGGING = {
