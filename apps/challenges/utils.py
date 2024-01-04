@@ -625,3 +625,13 @@ def add_sponsors_to_challenge(yaml_file_data, challenge):
     else:
         challenge.has_sponsors = False
         challenge.save()
+
+
+def simple_image_url(image_url) -> str:
+    prefix = settings.MEDIA_URL
+    if prefix in image_url:
+        index = image_url.index(prefix) + len(prefix)
+        new_url = image_url[index:]
+    else:
+        new_url = image_url
+    return new_url

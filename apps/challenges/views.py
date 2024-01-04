@@ -72,6 +72,7 @@ from challenges.utils import (
     add_tags_to_challenge,
     add_prizes_to_challenge,
     add_sponsors_to_challenge,
+    simple_image_url,
 )
 from challenges.challenge_config_utils import (
     download_and_write_file,
@@ -4450,10 +4451,8 @@ def create_or_update_challenge(request, challenge_host_team_pk):
     if not challenge_pk:
         data = request.data.copy()
         data["is_docker_based"] = True
-        data["approved_by_admin"] = True
         data["enable_forum"] = True
         data["is_registration_open"] = True
-        data["anonymous_leaderboard"] = False
         serializer = ZipChallengeSerializer(
             data=data,
             context={
@@ -4490,7 +4489,7 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.leaderboard_description = request.data.get("leaderboard_description")
         challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
-        challenge.image = request.data.get("image")
+        challenge.image = simple_image_url(request.data.get("image"))
         published = request.data.get("published")
         if published is not None:
             published = published.lower() == 'true'
