@@ -4,6 +4,7 @@ import logging
 import random
 import string
 import uuid
+import re
 
 from botocore.exceptions import ClientError
 from django.conf import settings
@@ -628,10 +629,10 @@ def add_sponsors_to_challenge(yaml_file_data, challenge):
 
 
 def simple_image_url(image_url) -> str:
-    prefix = settings.MEDIA_URL
-    if prefix in image_url:
-        index = image_url.index(prefix) + len(prefix)
-        new_url = image_url[index:]
+    pattern = r".*\/media\/(?!.*\/media\/)"
+    match = re.search(pattern, image_url)
+    if match:
+        return image_url[match.end():]
     else:
-        new_url = image_url
-    return new_url
+        return image_url
+
