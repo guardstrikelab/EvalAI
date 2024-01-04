@@ -635,4 +635,3 @@ def simple_image_url(image_url) -> str:
         return image_url[match.end():]
     else:
         return image_url
-
