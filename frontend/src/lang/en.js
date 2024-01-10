@@ -29,7 +29,7 @@ export default {
   systemInterface: 'System interface',
   exception: 'exception',
   interfaceTimeout: 'Interface request timeout',
-  interfaceException: 'Interface connection exception',
+  interfaceException: 'Network connection error',
   login: {
     username: 'User name',
     password: 'Password',

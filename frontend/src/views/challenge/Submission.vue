@@ -96,7 +96,7 @@
               <span :class="['submis-status', row.status]">{{ row.status?.charAt(0).toUpperCase() + row.status.slice(1) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="execution_time" :label="$t('submission.executTime')" width="160" />
+          <el-table-column prop="execution_time" :label="$t('submission.executTime')" width="180" />
           <el-table-column prop="submission_result_file" :label="$t('submission.resultFile')">
             <template #default="{ row }">
               <el-link type="primary" v-if="row.submission_result_file" :href="row.submission_result_file" target="_blank">Link</el-link>
@@ -208,6 +208,8 @@ const handleSelect = (item) => {
 onMounted(() => {
   if (props.phases.length > 0) {
     curPhase.value = props.phases[0];
+    selectedPhaseId.value = props.phases[0].id;
+    getSubmissionList();
   }
 });
 
@@ -298,6 +300,11 @@ const loadMore = () => {
   justify-content: center;
   &.btw {
     justify-content: space-between;
+  }
+  .value {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 20px;
   }
 }
 .phase-box {

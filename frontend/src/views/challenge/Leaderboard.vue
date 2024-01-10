@@ -68,6 +68,12 @@ const getSplitLabel = (item) => {
 onMounted(() => {
   getPhaseSplit(props.challengeId).then((res) => {
     splits.value = res || [];
+    if (splits.value.length > 0) {
+      curSplitId.value = splits.value[0].id;
+      labels.value = splits.value[0].leaderboard_schema?.labels || [];
+      curOrderBy.value = labels.value[0];
+      splitChange();
+    }
   });
 });
 const pager = reactive({
@@ -85,8 +91,6 @@ const splitChange = () => {
     });
     if (leaderboardList.value.length > 0) {
       labels.value = leaderboardList.value[0].leaderboard__schema?.labels || [];
-    } else {
-      labels.value = [];
     }
   });
 };

@@ -40,7 +40,7 @@
           <approval :challengeId="challengeId"></approval>
         </el-tab-pane>
         <el-tab-pane :label="$t('challenge.allSubmission')" name="allSubmission" v-if="isChallengeHost">
-          <all-submission :challengeId="challengeId"></all-submission>
+          <all-submission :challengeId="challengeId" :phases="phases"></all-submission>
         </el-tab-pane>
       </el-tabs>
     </div>
