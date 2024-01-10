@@ -12,7 +12,7 @@
         status-icon
         hide-required-asterisk>
         <el-form-item :label="$t('addPhase.name')" prop="name">
-          <el-input v-model="ruleForm.name" />
+          <el-input v-model="ruleForm.name" maxlength="100" />
         </el-form-item>
         <el-form-item :label="$t('addChall.desc')" prop="description">
           <editor v-model="ruleForm.description"></editor>
@@ -47,16 +47,16 @@
           </div>
         </el-form-item>
         <el-form-item :label="$t('addPhase.codename')" prop="codename" required>
-          <el-input v-model="ruleForm.codename" />
+          <el-input v-model="ruleForm.codename" maxlength="100" />
         </el-form-item>
         <el-form-item :label="$t('addPhase.maxSubmiPerDay')" prop="max_submissions_per_day" required>
-          <el-input v-model="ruleForm.max_submissions_per_day" />
+          <el-input v-model="ruleForm.max_submissions_per_day" maxlength="32" />
         </el-form-item>
         <el-form-item :label="$t('addPhase.maxSubmiPerMonth')" prop="max_submissions_per_month" required>
-          <el-input v-model="ruleForm.max_submissions_per_month" />
+          <el-input v-model="ruleForm.max_submissions_per_month" maxlength="32" />
         </el-form-item>
         <el-form-item :label="$t('addPhase.maxSubmissions')" prop="max_submissions" required>
-          <el-input v-model="ruleForm.max_submissions" />
+          <el-input v-model="ruleForm.max_submissions" maxlength="32" />
         </el-form-item>
         <el-form-item :label="$t('addPhase.isRestrictedToSelectOneSubmission')" prop="is_restricted_to_select_one_submission">
           <radio-group v-model="ruleForm.is_restricted_to_select_one_submission"></radio-group>

@@ -52,7 +52,7 @@ def get_or_create_sqs_queue(queue_name, challenge=None):
             )
 
     if queue_name == "":
-        queue_name = "evalai_submission_queue"
+        queue_name = "arena"
 
     # Check if the queue exists. If not, then create one.
     try:

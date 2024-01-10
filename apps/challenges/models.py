@@ -36,7 +36,7 @@ class Challenge(TimeStampedModel):
         self._original_evaluation_script = self.evaluation_script
         self._original_approved_by_admin = self.approved_by_admin
 
-    title = models.CharField(max_length=100, db_index=True)
+    title = models.CharField(max_length=100, db_index=True, unique=True)
     short_description = models.TextField(null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     terms_and_conditions = models.TextField(null=True, blank=True)
@@ -100,7 +100,7 @@ class Challenge(TimeStampedModel):
         default=8, verbose_name="EC2 storage (GB)"
     )
     ephemeral_storage = models.PositiveIntegerField(
-        default=20, verbose_name="Ephemeral Storage (GB)"
+        default=21, verbose_name="Ephemeral Storage (GB)"
     )
     featured = models.BooleanField(
         default=False, verbose_name="Featured", db_index=True

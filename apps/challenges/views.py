@@ -4449,6 +4449,11 @@ def create_or_update_challenge(request, challenge_host_team_pk):
 
     challenge_pk = request.data.get("id")
     if not challenge_pk:
+        if Challenge.objects.filter(title=request.data.get("title")).exists():
+            response_data = {
+                "error": "The challenge title already exists. Please choose a different title."
+            }
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
         data = request.data.copy()
         data["is_docker_based"] = True
         data["enable_forum"] = True
@@ -4481,6 +4486,11 @@ def create_or_update_challenge(request, challenge_host_team_pk):
             }
             return Response(response_data, status=status.HTTP_404_NOT_FOUND)
         challenge.title = request.data.get("title")
+        if Challenge.objects.filter(title=challenge.title).exclude(id=challenge_pk).exists():
+            response_data = {
+                "error": "The challenge title already exists. Please choose a different title."
+            }
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
         challenge.short_description = request.data.get("short_description")
         challenge.description = request.data.get("description")
         challenge.evaluation_details = request.data.get("evaluation_details")
@@ -4489,7 +4499,11 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.leaderboard_description = request.data.get("leaderboard_description")
         challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
-        challenge.image = simple_image_url(request.data.get("image"))
+        image = request.data.get("image")
+        if isinstance(image, str):
+            challenge.image = simple_image_url(image)
+        else:
+            challenge.image = image
         published = request.data.get("published")
         if published is not None:
             published = published.lower() == 'true'
@@ -4533,6 +4547,12 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
     challenge_phase_pk = request.data.get("id")
     if not challenge_phase_pk:
         try:
+            codename = request.data["codename"]
+            if ChallengePhase.objects.filter(challenge=challenge, codename=codename).exists():
+                response_data = {
+                    "error": f"A ChallengePhase with the codename '{codename}' already exists for the given challenge."
+                }
+                return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
             with transaction.atomic():
                 request.data["slug"] = "{}-{}-{}".format(
                     challenge.title.split(" ")[0].lower(),
@@ -4585,6 +4605,13 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         except ChallengePhase.DoesNotExist:
             response_data = {"error": "Challenge Phase does not exist"}
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        codename = request.data["codename"]
+        if ChallengePhase.objects.filter(challenge=challenge, codename=codename).exclude(id=challenge_phase_pk).exists():
+            response_data = {
+                "error": f"A ChallengePhase with the codename '{codename}' already exists for the given challenge."
+            }
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+        challenge_phase.codename = codename
         challenge_phase.name = request.data.get("name")
         challenge_phase.description = request.data.get("description")
         challenge_phase.leaderboard_public = request.data.get("leaderboard_public")
@@ -4593,7 +4620,6 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         challenge_phase.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge_phase.end_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
         challenge_phase.test_annotation_file = request.data.get("test_annotation_file")
-        challenge_phase.codename = request.data.get("codename")
         challenge_phase.max_submissions_per_day = request.data.get("max_submissions_per_day")
         challenge_phase.max_submissions_per_month = request.data.get("max_submissions_per_month")
         challenge_phase.max_submissions = request.data.get("max_submissions")

@@ -1,5 +1,5 @@
 <template>
-  <el-collapse v-model="activeNames">
+  <el-collapse v-model="activeNames" class="oa-collapse">
     <el-collapse-item :title="$t('overview.view.title')" name="1">
       <div v-html="detailInfo.description" class="editor-content-view"></div>
     </el-collapse-item>
@@ -67,20 +67,4 @@ const props = defineProps({
   }
 }
 
-.el-collapse {
-  border: none;
-  margin-top: -16px;
-}
-:deep(.el-collapse-item__header) {
-  font-size: 14px;
-  font-weight: 700;
-}
-:deep(.el-collapse-item__wrap) {
-  border-bottom-color: rgba(67, 77, 96, 0.6);
-}
-.el-collapse-item:nth-last-child(1) {
-  :deep(.el-collapse-item__wrap) {
-    border-bottom: none;
-  }
-}
 </style>

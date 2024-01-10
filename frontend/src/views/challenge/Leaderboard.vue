@@ -1,14 +1,14 @@
 <template>
-  <div class="title mb24">{{ $t('challenge.leaderboard') }}</div>
-  <div class="mb24">
-    <div v-html="description" class="editor-content-view"></div>
-  </div>
+  <el-collapse :model-value="['1']" class="oa-collapse">
+    <el-collapse-item :title="$t('challenge.leaderboard')" name="1">
+      <div v-html="description" class="editor-content-view"></div>
+    </el-collapse-item>
+  </el-collapse>
 
   <div class="flex-center mb16">
     <el-select v-model="curSplitId" :placeholder="$t('submission.phasePH')" @change="splitChange" style="width: 360px" class="mr16">
       <el-option v-for="item in splits" :key="item.id" :label="getSplitLabel(item)" :value="item.id" />
     </el-select>
-    <!-- <el-checkbox :label="$t('leaderboard.orderScore')" name="type" v-model="isByScore" @change="splitChange"></el-checkbox> -->
 
     <el-select v-model="curOrderBy" :placeholder="$t('submission.orderPH')" @change="splitChange" style="width: 360px" class="mr16">
       <el-option v-for="item in labels" :key="item" :label="item" :value="item" />
@@ -18,7 +18,6 @@
   <el-table :data="leaderboardList" stripe style="width: 100%" header-cell-class-name="thBg">
     <el-table-column fixed prop="rank" :label="$t('leaderboard.rank')" width="80" />
     <el-table-column fixed sortable prop="submission__participant_team__team_name" :label="$t('leaderboard.team')" width="250" />
-    <!-- <el-table-column sortable prop="filtering_score" :label="$t('leaderboard.score')" /> -->
     <el-table-column sortable :label="label" v-for="(label, i) in labels" :key="label" width="280">
       <template #default="{ row }">
         {{ row.result[i] }}
@@ -45,7 +44,6 @@ import { formatTime } from '@/utils/tool';
 const props = defineProps(['challengeId', 'description']);
 const curSplitId = ref('');
 const splits = ref([]);
-const isByScore = ref(false);
 const curOrderBy = ref('');
 const labels = ref([
   'Driving score',

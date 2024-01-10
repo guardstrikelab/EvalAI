@@ -11,7 +11,7 @@
         status-icon
         hide-required-asterisk>
         <el-form-item :label="$t('addChall.title')" prop="title">
-          <el-input v-model="ruleForm.title" />
+          <el-input v-model="ruleForm.title" maxlength="100" />
         </el-form-item>
         <el-form-item :label="$t('addChall.shortDesc')" prop="short_description">
           <editor v-model="ruleForm.short_description"></editor>
