@@ -1,0 +1,1 @@
+import{ay as e}from"./index-550fe8a6.js";const o=()=>e({method:"post",url:"/api/accounts/user/resend_email_verification/"}),a=()=>e({method:"get",url:"/api/accounts/user/get_auth_token"});export{o as e,a as g};

@@ -1,0 +1,1 @@
+import{u as a,b as o,c as l}from"./index-550fe8a6.js";import{o as c}from"./challenge-cbc6c818.js";const s={__name:"Home",setup(n){const t=a();return c().then(e=>{e!=null&&e.id?t.push(`/challenge/detail/${e.id}`):t.push("/challenge")},e=>{t.push("/challenge")}),(e,r)=>(o(),l("div"))}};export{s as default};
