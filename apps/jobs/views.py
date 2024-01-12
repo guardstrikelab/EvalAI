@@ -364,6 +364,8 @@ def challenge_submission(request, challenge_id, challenge_phase_id):
             "challenge_pk": challenge_id,
             "phase_pk": challenge_phase_id,
             "is_static_dataset_code_upload_submission": False,
+            "participant_team_id": participant_team_id,
+            "participant_team_name": participant_team.team_name,
         }
         if challenge.is_docker_based:
             try:
