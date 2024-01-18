@@ -387,6 +387,33 @@ def get_teams_and_corresponding_challenges_for_a_participant(
     return Response(response_data, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+@throttle_classes([UserRateThrottle])
+@permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))
+@authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
+def get_teams_and_corresponding_challenges_by_user(request):
+    """
+    Returns list of teams and corresponding challenges for a participant
+    """
+    # first get list of all the participants and teams related to the user
+    participant_objs = Participant.objects.filter(
+        user=request.user
+    ).prefetch_related("team")
+
+    challenge_set = []
+    for participant_obj in participant_objs:
+        participant_team = participant_obj.team
+
+        challenges = Challenge.objects.filter(
+            participant_teams=participant_team
+        )
+
+        if challenges.count():
+            for challenge in challenges:
+                challenge_set.append(challenge.id)
+    return Response(challenge_set, status=status.HTTP_200_OK)
+
+
 @api_view(["DELETE"])
 @throttle_classes([UserRateThrottle])
 @permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))

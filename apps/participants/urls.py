@@ -29,6 +29,11 @@ urlpatterns = [
         name="get_teams_and_corresponding_challenges_for_a_participant",
     ),
     url(
+        r"^participant_teams/user$",
+        views.get_teams_and_corresponding_challenges_by_user,
+        name="get_teams_and_corresponding_challenges_by_user",
+    ),
+    url(
         r"^participant_team$",
         views.participant_team_list,
         name="get_participant_team_list",

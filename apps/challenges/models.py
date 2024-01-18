@@ -125,6 +125,8 @@ class Challenge(TimeStampedModel):
         default="",
         verbose_name="SQS queue name",
         db_index=True,
+        null=False,
+        blank=False
     )
     is_docker_based = models.BooleanField(
         default=False, verbose_name="Is Docker Based", db_index=True
@@ -154,10 +156,10 @@ class Challenge(TimeStampedModel):
         max_length=50, default="us-east-1", null=True, blank=True
     )
     queue_aws_region = models.CharField(
-        max_length=50, default="us-east-1", null=True, blank=True
+        max_length=50, default="us-east-1", null=False, blank=False
     )
-    use_host_credentials = models.BooleanField(default=False)
-    use_host_sqs = models.BooleanField(default=False)
+    use_host_credentials = models.BooleanField(default=True)
+    use_host_sqs = models.BooleanField(default=True)
     allow_resuming_submissions = models.BooleanField(default=False)
     allow_host_cancel_submissions = models.BooleanField(default=False)
     allow_cancel_running_submissions = models.BooleanField(default=False)

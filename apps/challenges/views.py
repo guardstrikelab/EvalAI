@@ -4430,7 +4430,6 @@ def create_or_update_github_challenge(request, challenge_host_team_pk):
 @permission_classes((permissions.IsAuthenticated, HasVerifiedEmail))
 @authentication_classes((JWTAuthentication, ExpiringTokenAuthentication))
 def create_or_update_challenge(request, challenge_host_team_pk):
-    print(f"request:{request}, challenge_host_team_pk:{challenge_host_team_pk}")
     try:
         challenge_host_team = ChallengeHostTeam.objects.get(
             pk=challenge_host_team_pk
@@ -4446,6 +4445,11 @@ def create_or_update_challenge(request, challenge_host_team_pk):
             "error": "Sorry, you do not belong to this Host Team!"
         }
         return Response(response_data, status=status.HTTP_401_UNAUTHORIZED)
+    queue = request.data.get("queue")
+    queue_aws_region = request.data.get("queue_aws_region")
+    if not queue or not queue_aws_region:
+        response_data = {"error": "queue and queue_aws_region cannot be empty"}
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
     challenge_pk = request.data.get("id")
     if not challenge_pk:
@@ -4468,11 +4472,6 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        challenge = serializer.instance
-        queue_name = get_queue_name(challenge.title, challenge.pk)
-        challenge.queue = queue_name
-        challenge.save()
-
         challenge = get_challenge_model(serializer.instance.pk)
         serializer = ChallengeSerializer(challenge)
         response_data = serializer.data
@@ -4491,14 +4490,30 @@ def create_or_update_challenge(request, challenge_host_team_pk):
                 "error": "The challenge title already exists. Please choose a different title."
             }
             return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
-        challenge.short_description = request.data.get("short_description")
-        challenge.description = request.data.get("description")
-        challenge.evaluation_details = request.data.get("evaluation_details")
-        challenge.terms_and_conditions = request.data.get("terms_and_conditions")
-        challenge.submission_guidelines = request.data.get("submission_guidelines")
-        challenge.leaderboard_description = request.data.get("leaderboard_description")
-        challenge.start_date = datetime.strptime(request.data.get("start_date"), "%Y-%m-%dT%H:%M:%S%z")
-        challenge.end_date = datetime.strptime(request.data.get("end_date"), "%Y-%m-%dT%H:%M:%S%z")
+        challenge_fields = [
+            "short_description",
+            "description",
+            "evaluation_details",
+            "terms_and_conditions",
+            "submission_guidelines",
+            "leaderboard_description",
+            "queue",
+            "queue_aws_region",
+        ]
+        for field in challenge_fields:
+            field_value = request.data.get(field)
+            if field_value is not None:
+                setattr(challenge, field, field_value)
+
+        start_date_str = request.data.get("start_date")
+        end_date_str = request.data.get("end_date")
+        try:
+            challenge.start_date = datetime.strptime(start_date_str, "%Y-%m-%dT%H:%M:%S%z")
+            challenge.end_date = datetime.strptime(end_date_str, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError:
+            response_data = {"error": "Invalid date format"}
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
         image = request.data.get("image")
         if isinstance(image, str):
             challenge.image = simple_image_url(image)
@@ -4512,11 +4527,10 @@ def create_or_update_challenge(request, challenge_host_team_pk):
         challenge.approved_by_admin = True
         try:
             challenge.save()
-        except Exception as e:  # noqa: E722
+        except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        response_data = {
-            "message": "Challenge updated successfully!"
-        }
+
+        response_data = {"message": "Challenge updated successfully!"}
         return Response(response_data, status=status.HTTP_200_OK)
 
 
