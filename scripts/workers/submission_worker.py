@@ -796,7 +796,7 @@ def get_or_create_sqs_queue(queue_name, challenge=None):
                 aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
             )
     if queue_name == "":
-        queue_name = "evalai_submission_queue"
+        queue_name = "arena_submission_queue"
     # Check if the queue exists. If no, then create one
     try:
         queue = sqs.get_queue_by_name(QueueName=queue_name)
@@ -806,9 +806,10 @@ def get_or_create_sqs_queue(queue_name, challenge=None):
             != "AWS.SimpleQueueService.NonExistentQueue"
         ):
             logger.exception("Cannot get queue: {}".format(queue_name))
+        sqs_retention_period = SQS_RETENTION_PERIOD if challenge is None else str(challenge.sqs_retention_period)
         queue = sqs.create_queue(
             QueueName=queue_name,
-            Attributes={"MessageRetentionPeriod": SQS_RETENTION_PERIOD},
+            Attributes={"MessageRetentionPeriod": sqs_retention_period},
         )
     return queue
 
@@ -873,7 +874,7 @@ def main():
 
     # create submission base data directory
     create_dir_as_python_package(SUBMISSION_DATA_BASE_DIR)
-    queue_name = os.environ.get("CHALLENGE_QUEUE", "evalai_submission_queue")
+    queue_name = os.environ.get("CHALLENGE_QUEUE", "arena_submission_queue")
     queue = get_or_create_sqs_queue(queue_name, challenge)
     is_remote = int(challenge.remote_evaluation)
     while True:

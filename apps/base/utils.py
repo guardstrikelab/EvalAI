@@ -149,10 +149,10 @@ def send_email(
 
 
 def get_url_from_hostname(hostname):
-    # if settings.DEBUG or settings.TEST:
-    scheme = "http"  # TODO After https is supported, this needs to be restored to its original state.
-    # else:
-    #     scheme = "https"
+    if settings.DEBUG or settings.TEST:
+        scheme = "http"
+    else:
+        scheme = "https"
     url = "{}://{}".format(scheme, hostname)
     return url
 
@@ -180,7 +180,7 @@ def get_boto3_client(resource, aws_keys):
 
 def get_or_create_sqs_queue(queue_name, challenge=None):
     if settings.DEBUG or settings.TEST:
-        queue_name = "evalai_submission_queue"
+        queue_name = "arena_submission_queue"
         sqs = boto3.resource(
             "sqs",
             endpoint_url=os.environ.get("AWS_SQS_ENDPOINT", "http://sqs:9324"),

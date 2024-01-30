@@ -290,6 +290,11 @@ urlpatterns = [
         name="update_challenge_tags_and_domain",
     ),
     url(
+        r"^challenge/update_challenge_attributes/$",
+        views.update_challenge_attributes,
+        name="update_challenge_attributes",
+    ),
+    url(
         r"^challenge/get_domain_choices/$",
         views.get_domain_choices,
         name="get_domain_choices",

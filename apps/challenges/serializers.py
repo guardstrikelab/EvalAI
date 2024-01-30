@@ -94,7 +94,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
             "ephemeral_storage",
             "evaluation_module_error",
             "worker_image_url",
-            "worker_instance_type"
+            "worker_instance_type",
+            "sqs_retention_period"
         )
 
 
@@ -276,6 +277,7 @@ class ZipChallengeSerializer(ChallengeSerializer):
             "enable_forum",
             "anonymous_leaderboard",
             "leaderboard_description",
+            "manual_participant_approval",
             "image",
             "is_active",
             "evaluation_script",
@@ -291,6 +293,10 @@ class ZipChallengeSerializer(ChallengeSerializer):
             "is_docker_based",
             "queue",
             "queue_aws_region",
+            "aws_account_id",
+            "aws_access_key_id",
+            "aws_secret_access_key",
+            "aws_region",
             "is_static_dataset_code_upload",
             "slug",
             "max_docker_image_size",
@@ -312,7 +318,8 @@ class ZipChallengeSerializer(ChallengeSerializer):
             "ec2_storage",
             "ephemeral_storage",
             "evaluation_module_error",
-            "worker_image_url"
+            "worker_image_url",
+            "sqs_retention_period"
         )
 
 

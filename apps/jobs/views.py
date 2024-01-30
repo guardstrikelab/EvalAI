@@ -1159,7 +1159,7 @@ def update_submission(request, challenge_pk):
 
             leaderboard_data_list = []
             for phase_result in results:
-                split = phase_result.get("split")
+                split = phase_result.get("split", "split1")
                 accuracies = phase_result.get("accuracies")
                 show_to_participant = phase_result.get(
                     "show_to_participant", False
@@ -1171,7 +1171,7 @@ def update_submission(request, challenge_pk):
                     )
                 except ChallengePhaseSplit.DoesNotExist:
                     response_data = {
-                        "error": "Challenge Phase Split does not exist with phase_id: {} and"
+                        "error": "Challenge Phase Split does not exist with phase_id: {} and "
                         "split codename: {}".format(challenge_phase_pk, split)
                     }
                     return Response(
@@ -1274,10 +1274,10 @@ def update_submission(request, challenge_pk):
         submission.stderr_file.save("stderr.txt", ContentFile(stderr_content))
         submission.environment_log_file.save("environment_log.txt", ContentFile(environment_log_content))
         submission.submission_result_file.save(
-            "submission_result.json", ContentFile(str(public_results))
+            "submission_result.json", ContentFile(str(public_results).encode("utf-8"))
         )
         submission.submission_metadata_file.save(
-            "submission_metadata_file.json", ContentFile(str(metadata))
+            "submission_metadata_file.json", ContentFile(str(metadata).encode("utf-8"))
         )
         submission.save()
         response_data = {
@@ -1512,8 +1512,8 @@ def update_partially_evaluated_submission(request, challenge_pk):
         challenge_phase_pk = request.data.get("challenge_phase")
         submission_pk = request.data.get("submission")
         submission_status = request.data.get("submission_status", "").lower()
-        stdout_content = request.data.get("stdout", "")
-        stderr_content = request.data.get("stderr", "")
+        stdout_content = request.data.get("stdout", "").encode("utf-8")
+        stderr_content = request.data.get("stderr", "").encode("utf-8")
         submission_result = request.data.get("result", "")
         metadata = request.data.get("metadata", "")
         submission = get_submission_model(submission_pk)
@@ -1550,7 +1550,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
 
             leaderboard_data_list = []
             for phase_result in results:
-                split = phase_result.get("split")
+                split = phase_result.get("split", "split1")
                 accuracies = phase_result.get("accuracies")
                 show_to_participant = phase_result.get(
                     "show_to_participant", False
@@ -1562,7 +1562,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
                     )
                 except ChallengePhaseSplit.DoesNotExist:
                     response_data = {
-                        "error": "Challenge Phase Split does not exist with phase_id: {} and"
+                        "error": "Challenge Phase Split does not exist with phase_id: {} and "
                         "split codename: {}".format(challenge_phase_pk, split)
                     }
                     return Response(
@@ -1669,10 +1669,10 @@ def update_partially_evaluated_submission(request, challenge_pk):
         submission.stdout_file.save("stdout.txt", ContentFile(stdout_content))
         submission.stderr_file.save("stderr.txt", ContentFile(stderr_content))
         submission.submission_result_file.save(
-            "submission_result.json", ContentFile(str(public_results))
+            "submission_result.json", ContentFile(str(public_results).encode("utf-8"))
         )
         submission.submission_metadata_file.save(
-            "submission_metadata_file.json", ContentFile(str(metadata))
+            "submission_metadata_file.json", ContentFile(str(metadata).encode("utf-8"))
         )
         submission.save()
         response_data = {
@@ -1720,8 +1720,8 @@ def update_partially_evaluated_submission(request, challenge_pk):
             or submission_status == Submission.FINISHED
         ):
             challenge_phase_pk = request.data.get("challenge_phase")
-            stdout_content = request.data.get("stdout", "")
-            stderr_content = request.data.get("stderr", "")
+            stdout_content = request.data.get("stdout", "").encode('utf-8')
+            stderr_content = request.data.get("stderr", "").encode('utf-8')
             submission_result = request.data.get("result", "")
 
             try:
@@ -1738,7 +1738,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
             public_results = []
             leaderboard_data_list = []
             for phase_result in results:
-                split = phase_result.get("split")
+                split = phase_result.get("split", "split1")
                 accuracies = phase_result.get("accuracies")
                 show_to_participant = phase_result.get(
                     "show_to_participant", False
@@ -1750,7 +1750,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
                     )
                 except ChallengePhaseSplit.DoesNotExist:
                     response_data = {
-                        "error": "Challenge Phase Split does not exist with phase_id: {} and"
+                        "error": "Challenge Phase Split does not exist with phase_id: {} and "
                         "split codename: {}".format(challenge_phase_pk, split)
                     }
                     return Response(
@@ -1763,7 +1763,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
                     )
                 except LeaderboardData.DoesNotExist:
                     response_data = {
-                        "error": "Leaderboard Data does not exist with phase_id: {} and"
+                        "error": "Leaderboard Data does not exist with phase_id: {} and "
                         "submission id: {}".format(
                             challenge_phase_pk, submission_pk
                         )
@@ -1793,7 +1793,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
                 )
                 if len(missing_metrics) and not is_partial_evaluation_phase:
                     response_data = {
-                        "error": "Following metrics are missing in the"
+                        "error": "Following metrics are missing in the "
                         "leaderboard data: {} of challenge phase: {}".format(
                             missing_metrics, challenge_phase_pk
                         )
@@ -1804,7 +1804,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
 
                 if len(malformed_metrics):
                     response_data = {
-                        "error": "Values for following metrics are not of"
+                        "error": "Values for following metrics are not of "
                         "float/int: {}".format(malformed_metrics)
                     }
                     return Response(
@@ -1861,7 +1861,7 @@ def update_partially_evaluated_submission(request, challenge_pk):
                 "stderr.txt", ContentFile(stderr_content)
             )
             submission.submission_result_file.save(
-                "submission_result.json", ContentFile(str(public_results))
+                "submission_result.json", ContentFile(str(public_results).encode('utf-8'))
             )
             submission.save()
             response_data = {

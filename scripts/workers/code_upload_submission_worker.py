@@ -41,7 +41,7 @@ AUTH_TOKEN = os.environ.get("AUTH_TOKEN", "auth_token")
 EVALAI_API_SERVER = os.environ.get(
     "EVALAI_API_SERVER", "http://localhost:8000"
 )
-QUEUE_NAME = os.environ.get("QUEUE_NAME", "evalai_submission_queue")
+QUEUE_NAME = os.environ.get("QUEUE_NAME", "arena_submission_queue")
 script_config_map_name = "evalai-scripts-cm"
 
 

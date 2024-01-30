@@ -35,6 +35,7 @@ class Challenge(TimeStampedModel):
         super(Challenge, self).__init__(*args, **kwargs)
         self._original_evaluation_script = self.evaluation_script
         self._original_approved_by_admin = self.approved_by_admin
+        self._original_sqs_retention_period = self.sqs_retention_period
 
     title = models.CharField(max_length=100, db_index=True, unique=True)
     short_description = models.TextField(null=True, blank=True)
@@ -127,6 +128,10 @@ class Challenge(TimeStampedModel):
         db_index=True,
         null=False,
         blank=False
+    )
+    sqs_retention_period = models.PositiveIntegerField(
+        default=345600,
+        verbose_name="SQS Retention Period"
     )
     is_docker_based = models.BooleanField(
         default=False, verbose_name="Is Docker Based", db_index=True

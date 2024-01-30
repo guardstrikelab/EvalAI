@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 AUTH_TOKEN = os.environ.get("AUTH_TOKEN")
 DJANGO_SERVER = os.environ.get("DJANGO_SERVER", "localhost")
 DJANGO_SERVER_PORT = os.environ.get("DJANGO_SERVER_PORT", "8000")
-QUEUE_NAME = os.environ.get("QUEUE_NAME", "evalai_submission_queue")
+QUEUE_NAME = os.environ.get("QUEUE_NAME", "arena_submission_queue")
 
 CHALLENGE_DATA_BASE_DIR = join(COMPUTE_DIRECTORY_PATH, "challenge_data")
 SUBMISSION_DATA_BASE_DIR = join(COMPUTE_DIRECTORY_PATH, "submission_files")

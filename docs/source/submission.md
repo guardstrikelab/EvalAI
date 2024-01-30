@@ -73,7 +73,7 @@ EVALUATION_SCRIPTS = {
 }
 ```
 
-After the challenges are successfully loaded, it creates a connection with the SQS queue `evalai_submission_queue` and listens to it for new submissions.
+After the challenges are successfully loaded, it creates a connection with the SQS queue `arena_submission_queue` and listens to it for new submissions.
 
 
 ### How is submission made?

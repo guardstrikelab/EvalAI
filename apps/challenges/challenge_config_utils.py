@@ -287,6 +287,8 @@ error_message_dict = {
     "duplicate_rank": "ERROR: Duplicate rank {} found in YAML data.",
     "prize_amount_wrong": "ERROR: Invalid amount value {}. Amount should be in decimal format with three-letter currency code (e.g. 100.00USD, 500EUR, 1000INR).",
     "prize_rank_wrong": "ERROR: Invalid rank value {}. Rank should be an integer.",
+    "challenge_metadata_schema_errors": "ERROR: Unable to serialize the challenge because of the following errors: {}.",
+    "evaluation_script_not_zip": "ERROR: Please pass in a zip file as evaluation script. If using the `evaluation_script` directory (recommended), it should be `evaluation_script.zip`.",
 }
 
 

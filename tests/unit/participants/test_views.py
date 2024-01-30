@@ -887,6 +887,7 @@ class GetTeamsAndCorrespondingChallengesForAParticipant(BaseAPITestClass):
                         "evaluation_module_error": self.challenge1.evaluation_module_error,
                         "worker_image_url": self.challenge1.worker_image_url,
                         "worker_instance_type": self.challenge1.worker_instance_type,
+                        "sqs_retention_period": self.challenge1.sqs_retention_period,
                     },
                     "participant_team": {
                         "id": self.participant_team.id,
@@ -980,6 +981,7 @@ class GetTeamsAndCorrespondingChallengesForAParticipant(BaseAPITestClass):
                 "evaluation_module_error": self.challenge1.evaluation_module_error,
                 "worker_image_url": self.challenge1.worker_image_url,
                 "worker_instance_type": self.challenge1.worker_instance_type,
+                "sqs_retention_period": self.challenge1.sqs_retention_period,
             }
         ]
 
