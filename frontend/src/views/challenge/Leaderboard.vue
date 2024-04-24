@@ -6,7 +6,7 @@
   </el-collapse>
 
   <div class="flex-center mb16">
-    <el-select v-model="curSplitId" :placeholder="$t('submission.phasePH')" @change="splitChange" style="width: 360px" class="mr16">
+    <el-select v-model="curSplitId" :placeholder="$t('submission.trackPH')" @change="splitChange" style="width: 360px" class="mr16">
       <el-option v-for="item in splits" :key="item.id" :label="getSplitLabel(item)" :value="item.id" />
     </el-select>
 
@@ -18,7 +18,7 @@
   <el-table :data="leaderboardList" stripe style="width: 100%" header-cell-class-name="thBg">
     <el-table-column fixed prop="rank" :label="$t('leaderboard.rank')" width="80" />
     <el-table-column fixed sortable prop="submission__participant_team__team_name" :label="$t('leaderboard.team')" width="250" />
-    <el-table-column sortable :label="label" v-for="(label, i) in labels" :key="label" width="280">
+    <el-table-column sortable :label="label" v-for="(label, i) in labels" :key="label" width="290">
       <template #default="{ row }">
         {{ row.result[i] }}
       </template>
@@ -38,7 +38,7 @@
 
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
-import { getPhaseSplit, getLeaderboard } from '@/api/challenge';
+import { getTrackSplit, getLeaderboard } from '@/api/challenge';
 import { formatTime } from '@/utils/tool';
 
 const props = defineProps(['challengeId', 'description']);
@@ -63,10 +63,10 @@ const labels = ref([
   'Min speed infractions',
 ]);
 const getSplitLabel = (item) => {
-  return `Phase: ${item.challenge_phase_name}`;
+  return `Track: ${item.challenge_phase_name}`;
 };
 onMounted(() => {
-  getPhaseSplit(props.challengeId).then((res) => {
+  getTrackSplit(props.challengeId).then((res) => {
     splits.value = res || [];
     if (splits.value.length > 0) {
       curSplitId.value = splits.value[0].id;

@@ -1,12 +1,10 @@
 import axios from 'axios';
-import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus';
+import { ElNotification, ElMessageBox, ElMessage } from 'element-plus';
 import errorCode, { getErrMsg } from '@/utils/errorCode';
-import { blobValidate } from '@/utils/tool';
 import store from '../store';
 import router from '../router';
 import i18n from '@/lang/index.js';
 
-let downloadLoadingInstance;
 // 是否显示重新登录
 export let isRelogin = { show: false };
 
@@ -80,6 +78,7 @@ service.interceptors.response.use(
   (error) => {
     let { message, response } = error;
     let isShowMessage = true;
+    let messageType = 'error';
     if (message == 'Network Error') {
       message = i18n.global.t('interfaceException');
     } else if (response.config?.headers?.noMessage) {
@@ -118,6 +117,7 @@ service.interceptors.response.use(
     } else if (response.status == 401 && response.data?.detail) {
       message = getErrMsg(response.data.detail);
       if (response.data.detail === 'Invalid token' || response.data.detail === 'Token has expired') {
+        messageType = 'info';
         store.dispatch('logOut').then(() => {
           location.href = '/';
         });
@@ -137,39 +137,10 @@ service.interceptors.response.use(
       message = i18n.global.t('systemInterface') + ' ' + message.substr(message.length - 3) + ' ' + i18n.global.t('exception');
     }
     if (isShowMessage) {
-      ElMessage({ message: message, grouping: true, type: 'error', duration: 5 * 1000 });
+      ElMessage({ message: message, grouping: true, type: messageType });
     }
     return Promise.reject(error);
   }
 );
-
-// 通用下载方法
-export function download(url, params, filename, config) {
-  downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
-  return service
-    .post(url, params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      responseType: 'blob',
-      ...config,
-    })
-    .then(async (data) => {
-      const isBlob = blobValidate(data);
-      if (isBlob) {
-        const blob = new Blob([data]);
-        // saveAs(blob, filename);
-      } else {
-        const resText = await data.text();
-        const rspObj = JSON.parse(resText);
-        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
-        ElMessage.error(errMsg);
-      }
-      downloadLoadingInstance.close();
-    })
-    .catch((r) => {
-      console.error(r);
-      ElMessage.error('下载文件出现错误，请联系管理员！');
-      downloadLoadingInstance.close();
-    });
-}
 
 export default service;
