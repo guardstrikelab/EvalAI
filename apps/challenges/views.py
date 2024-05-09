@@ -993,8 +993,8 @@ def challenge_phase_detail(request, challenge_pk, pk):
             serializer = ChallengePhaseCreateSerializer(
                 challenge_phase, context={"request": request}
             )
+
             response_data = serializer.data
-            
             challenge_phase_split_qs = ChallengePhaseSplit.objects.filter(
                 challenge_phase__challenge__pk=challenge.pk
             )
