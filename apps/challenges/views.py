@@ -994,6 +994,14 @@ def challenge_phase_detail(request, challenge_pk, pk):
                 challenge_phase, context={"request": request}
             )
             response_data = serializer.data
+            
+            challenge_phase_split_qs = ChallengePhaseSplit.objects.filter(
+                challenge_phase__challenge__pk=challenge.pk
+            )
+            if challenge_phase_split_qs:
+                challenge_phase_split = challenge_phase_split_qs.first()
+                leaderboard = challenge_phase_split.leaderboard
+                response_data["metrics"] = leaderboard.schema
             return Response(response_data, status=status.HTTP_200_OK)
 
     elif request.method in ["PUT", "PATCH"]:
@@ -4605,9 +4613,20 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
                             "error": "Internal error in the service. Failed to create Challenge Dataset Split."
                                      " Please contact the administrator."}
                         raise RuntimeError(response_data)
+
+                    leaderboard_data = {
+                        "schema": request.data.get("metrics")
+                    }
+                    leaderboard_serializer = LeaderboardSerializer(data=leaderboard_data, context={"config_id": ""})
+                    if leaderboard_serializer.is_valid():
+                        leaderboard_serializer.save()
+                    else:
+                        error_messages = f"leaderboard create error :{str(leaderboard_serializer.errors)}"
+                        raise RuntimeError(error_messages)
+
                     data = {
                         "challenge_phase": challenge_phase.pk,
-                        "leaderboard": 21,  # Todo Destroy the magic number
+                        "leaderboard": leaderboard_serializer.instance.pk,
                         "dataset_split": serializer.instance.pk,
                         "visibility": ChallengePhaseSplit.PUBLIC
                         # "is_leaderboard_order_descending": is_leaderboard_order_descending,
@@ -4661,6 +4680,29 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         challenge_phase.allowed_submission_file_types = request.data.get("allowed_submission_file_types")
         try:
             challenge_phase.save()
+            challenge_phase_split_qs = ChallengePhaseSplit.objects.filter(
+                challenge_phase__challenge__pk=challenge_pk
+            )
+            if challenge_phase_split_qs:
+                challenge_phase_split = challenge_phase_split_qs.first()
+                leaderboard = challenge_phase_split.leaderboard
+                leaderboard_data = {
+                    "schema": request.data.get("metrics")
+                }
+                serializer = LeaderboardSerializer(
+                    leaderboard,
+                    data=leaderboard_data,
+                    context={"config_id": ""},
+                )
+            else:
+                serializer = LeaderboardSerializer(
+                    data=leaderboard_data, context={"config_id": ""}
+                )
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                error_messages = f"leaderboard updated error :{str(serializer.errors)}"
+                raise RuntimeError(error_messages)
         except Exception as e:  # noqa: E722
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         response_data = {
