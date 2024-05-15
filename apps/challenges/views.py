@@ -996,7 +996,7 @@ def challenge_phase_detail(request, challenge_pk, pk):
 
             response_data = serializer.data
             challenge_phase_split_qs = ChallengePhaseSplit.objects.filter(
-                challenge_phase__challenge__pk=challenge.pk
+                challenge_phase__pk=pk
             )
             if challenge_phase_split_qs:
                 challenge_phase_split = challenge_phase_split_qs.first()
@@ -4681,7 +4681,7 @@ def create_or_update_challenge_phase(request, challenge_host_team_pk, challenge_
         try:
             challenge_phase.save()
             challenge_phase_split_qs = ChallengePhaseSplit.objects.filter(
-                challenge_phase__challenge__pk=challenge_pk
+                challenge_phase__pk=challenge_phase_pk,
             )
             if challenge_phase_split_qs:
                 challenge_phase_split = challenge_phase_split_qs.first()
